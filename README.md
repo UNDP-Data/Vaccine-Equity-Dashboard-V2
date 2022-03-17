@@ -1,4 +1,4 @@
-# Access All Data Visualization in DFP
+# Vaccine Equity Dashboard Visualization in DFP
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app) and uses [Craco](https://www.npmjs.com/package/@craco/craco) to add a configuration layer for CRA. For this porject, we use [Typescript](https://www.typescriptlang.org/), a strongly typed programming language that builds on JavaScript. Typescript helps in better documentation of the code and communication between developers.
 
@@ -47,8 +47,8 @@ __The deployment workflow should be roughly as follow:__
 2. Test it locally on your system to make sure everything is working properly
 3. Use `npm run build` to build the react app in the build folder
 4. Rename the folder (if you like) and then upload the folder to SiteGround in the `public_html` folder
-5. Change the `src` of the `script` tag in the `index.html` from `/static/js/main.js` to `/<FOLDER_NAME>/static/js/main.js`, if you don't do this `index.html` will try to look for the js file at `www.data.undp.org/static/js/main.js` (which is not the right location) instead of `www.data.undp.org/<FOLDER_NAME>/static/js/main.js`
-6. You should be able to see the visualization in your browser using the URL `www.data.undp.org/<FOLDER_NAME>`
+5. Change the `src` of the `script` tag in the `index.html` from `/static/js/main.js` to `/ved-viz/static/js/main.js`, if you don't do this `index.html` will try to look for the js file at `www.data.undp.org/static/js/main.js` (which is not the right location) instead of `www.data.undp.org/ved-viz/static/js/main.js`
+6. You should be able to see the visualization in your browser using the URL `www.data.undp.org/ved-viz`
 
 __Steps to integrating the visualization in the wordpress page is as follow:__
 1. To integrate the visualization in the a wordpress page first login to [wordpress](https://data.undp.org/wp-admin). To get access to the Wordpress Admin Panel contact Naledi Hollbruegge (naledi.hollbruegge@undp.org) or Mustafa Saifee (mustafa.saifee@undp.org)
@@ -56,7 +56,7 @@ __Steps to integrating the visualization in the wordpress page is as follow:__
 3. Add an HTML element where you want to add the visualization
 4. In the HTML code use (here make sure that the elemnent in which the react app is rendering the visualization is present as div). In the below example and in the code, the react-app is renders in a and HTML element with parameter `data-bucket-embed`; therefore in the HTML code the `div` element has the parameter `data-bucket-embed`. _(You can also use a unique `id` to render the element and  use that to render the visualization)_ 
     ```
-    <script defer src="https://data.undp.org/<VIZ_FOLDER_NAME>/static/js/main.js"></script>
+    <script defer src="https://data.undp.org/ved-viz/static/js/main.js"></script>
     <div id="root" data-bucket-embed></div>
     ```
 5. You should then see the visualization in previews. _(If there is some problem do check the data file is linked correctly as WP might re-route it)_
