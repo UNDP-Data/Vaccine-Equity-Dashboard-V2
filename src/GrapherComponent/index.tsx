@@ -1,9 +1,9 @@
 import { useContext, useState } from 'react';
 import styled from 'styled-components';
 import { Modal } from 'antd';
-import { CtxDataType, DataType, IndicatorMetaDataWithYear } from '../Types';
+import { CtxDataType, DataType, IndicatorMetaDataType } from '../Types';
 import {
-  ScatterPlotIcon, BarGraphIcon, MapIcon, DualAxesChartIcon, MultiLineChartIcon, Logo,
+  ScatterPlotIcon, BarGraphIcon, MapIcon, Logo,
 } from '../Icons';
 import Context from '../Context/Context';
 import { Settings } from './Settings';
@@ -14,7 +14,7 @@ import { CopyLinkWithParamButton } from '../Components/CopyLinkWithParamButton';
 
 interface Props {
   data: DataType[];
-  indicators: IndicatorMetaDataWithYear[];
+  indicators: IndicatorMetaDataType[];
   regions: string[];
   countries: string[];
 }
@@ -160,8 +160,8 @@ export const GrapherComponent = (props: Props) => {
           <TitleEl>
             <Logo height={50} />
             <div>
-              <H1>Data Futures Platform</H1>
-              <H2>Explore All Data</H2>
+              <H1>COVID-19 Vaccine Equity Dashboard</H1>
+              <H2>Tool for exploring equitable distribution of COVID-19 vaccines</H2>
             </div>
           </TitleEl>
           <ButtonsEl>
@@ -201,18 +201,6 @@ export const GrapherComponent = (props: Props) => {
                     </IconEl>
                     <>Ranks</>
                   </TabsEl>
-                  <TabsEl selected={graphType === 'trendLine'} onClick={() => { updateGraphType('trendLine'); }}>
-                    <IconEl>
-                      <DualAxesChartIcon size={48} fill={graphType === 'trendLine' ? 'var(--primary-blue)' : 'var(--black-500)'} />
-                    </IconEl>
-                    <>Dual Axes Line Chart</>
-                  </TabsEl>
-                  <TabsEl selected={graphType === 'multiCountryTrendLine'} onClick={() => { updateGraphType('multiCountryTrendLine'); }}>
-                    <IconEl>
-                      <MultiLineChartIcon size={48} fill={graphType === 'multiCountryTrendLine' ? 'var(--primary-blue)' : 'var(--black-500)'} />
-                    </IconEl>
-                    <>Multi Country Trends</>
-                  </TabsEl>
                 </TabsContainerEl>
               )
           }
@@ -239,7 +227,6 @@ export const GrapherComponent = (props: Props) => {
                 <Graph
                   data={data}
                   indicators={indicators}
-                  countries={countries}
                   fullWidth={queryParams.get('showSettings') === 'false'}
                 />
               )

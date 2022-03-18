@@ -10,7 +10,7 @@ import {
 } from 'd3-scale';
 import minBy from 'lodash.minby';
 import {
-  CtxDataType, DataType, HoverDataType, HoverRowDataType, IndicatorMetaDataWithYear,
+  CtxDataType, DataType, HoverDataType, HoverRowDataType, IndicatorMetaDataType,
 } from '../Types';
 import Context from '../Context/Context';
 import {
@@ -20,7 +20,7 @@ import { Tooltip } from '../Components/Tooltip';
 
 interface Props {
   data: DataType[];
-  indicators: IndicatorMetaDataWithYear[];
+  indicators: IndicatorMetaDataType[];
 }
 
 const El = styled.div`
@@ -33,9 +33,7 @@ export const HorizontalBarChart = (props: Props) => {
     indicators,
   } = props;
   const {
-    year,
     xAxisIndicator,
-    showMostRecentData,
     colorIndicator,
     selectedCountries,
     selectedRegions,
@@ -54,41 +52,35 @@ export const HorizontalBarChart = (props: Props) => {
     right: 40,
   };
   const graphWidth = svgWidth - margin.left - margin.right;
-  const xIndicatorMetaData = indicators[indicators.findIndex((indicator) => indicator.IndicatorLabelTable === xAxisIndicator)];
-  const colorIndicatorMetaData = indicators[indicators.findIndex((indicator) => indicator.IndicatorLabelTable === colorIndicator)];
+  const xIndicatorMetaData = indicators[indicators.findIndex((indicator) => indicator.Indicator === xAxisIndicator)];
+  const colorIndicatorMetaData = indicators[indicators.findIndex((indicator) => indicator.Indicator === colorIndicator)];
 
   const dataFormatted = orderBy(
     data.map((d) => {
-      const xIndicatorIndex = d.indicators.findIndex((el) => xIndicatorMetaData.DataKey === el.indicator);
-      const colorIndicatorIndex = colorIndicator === 'Human Development Index' ? d.indicators.findIndex((el) => el.indicator === 'Human development index (HDI)') : d.indicators.findIndex((el) => colorIndicatorMetaData?.DataKey === el.indicator);
+      const xIndicatorIndex = d.data.findIndex((el) => xIndicatorMetaData.DataKey === el.indicator);
+      const colorIndicatorIndex = colorIndicator === 'Human Development Index' ? d.data.findIndex((el) => el.indicator === 'Human development index (HDI)') : d.data.findIndex((el) => colorIndicatorMetaData?.DataKey === el.indicator);
 
-      const xVal = xIndicatorIndex === -1 ? undefined
-        : year !== -1 && !showMostRecentData ? d.indicators[xIndicatorIndex].yearlyData[d.indicators[xIndicatorIndex].yearlyData.findIndex((el) => el.year === year)]?.value
-          : d.indicators[xIndicatorIndex].yearlyData[d.indicators[xIndicatorIndex].yearlyData.length - 1]?.value;
+      const xVal = xIndicatorIndex === -1 ? undefined : d.data[xIndicatorIndex].value;
+      const xLabelExtra = xIndicatorIndex === -1 ? undefined : d.data[xIndicatorIndex].labelExtra;
       const colorVal = colorIndicator === 'Continents' ? d['Group 1']
         : colorIndicator === 'Income Groups' ? d['Income group']
-          : colorIndicator === 'Human Development Index' ? year !== -1 && !showMostRecentData ? d.indicators[colorIndicatorIndex].yearlyData[d.indicators[colorIndicatorIndex].yearlyData.findIndex((el) => el.year === year)]?.value
-            : d.indicators[colorIndicatorIndex].yearlyData[d.indicators[colorIndicatorIndex].yearlyData.length - 1]?.value
-            : colorIndicatorIndex === -1 ? undefined
-              : year !== -1 && !showMostRecentData ? d.indicators[colorIndicatorIndex].yearlyData[d.indicators[colorIndicatorIndex].yearlyData.findIndex((el) => el.year === year)]?.value
-                : d.indicators[colorIndicatorIndex].yearlyData[d.indicators[colorIndicatorIndex].yearlyData.length - 1]?.value;
+          : colorIndicatorIndex === -1 ? undefined : d.data[colorIndicatorIndex].value;
+      const colorLabelExtra = colorIndicatorIndex === -1 ? undefined : d.data[colorIndicatorIndex].labelExtra;
       const countryGroup = selectedCountryGroup === 'All' ? true : d[selectedCountryGroup];
       const incomeGroup = !!(selectedIncomeGroups.length === 0 || selectedIncomeGroups.indexOf(d['Income group']) !== -1);
       const region = !!(selectedRegions.length === 0 || selectedRegions.indexOf(d['Group 2']) !== -1);
       const country = !!(selectedCountries.length === 0 || selectedCountries.indexOf(d['Country or Area']) !== -1);
-      const xYear = year === -1 || showMostRecentData ? d.indicators[xIndicatorIndex].yearlyData[d.indicators[xIndicatorIndex].yearlyData.length - 1]?.year : year;
-      const colorYear = (year === -1 || showMostRecentData) && colorIndicatorIndex !== -1 ? d.indicators[colorIndicatorIndex].yearlyData[d.indicators[colorIndicatorIndex].yearlyData.length - 1]?.year : year;
       return ({
         countryCode: d['Alpha-3 code-1'],
         countryName: d['Country or Area'],
         xVal,
+        xLabelExtra,
         colorVal,
+        colorLabelExtra,
         region,
         countryGroup,
         incomeGroup,
         country,
-        xYear,
-        colorYear,
       });
     }).filter((d) => d.xVal !== undefined && d.country && d.countryGroup && d.incomeGroup && d.region), 'xVal', reverseOrder ? 'desc' : 'asc',
   );
@@ -162,7 +154,7 @@ export const HorizontalBarChart = (props: Props) => {
           fontSize={18}
           fill='#212121'
         >
-          {xIndicatorMetaData.IndicatorLabelTable}
+          {xIndicatorMetaData.Indicator}
         </text>
         <g
           transform={`translate(${margin.left},70)`}
@@ -173,7 +165,7 @@ export const HorizontalBarChart = (props: Props) => {
             fontSize={14}
             fill='#212121'
           >
-            {colorIndicatorMetaData?.IndicatorLabelTable ? colorIndicatorMetaData?.IndicatorLabelTable : colorIndicator}
+            {colorIndicatorMetaData?.Indicator ? colorIndicatorMetaData?.Indicator : colorIndicator}
           </text>
           {
             colorIndicator === 'Human Development Index' ? COLOR_SCALES.Divergent.Color4.map((d, i) => (
@@ -290,8 +282,8 @@ export const HorizontalBarChart = (props: Props) => {
                 {
                   title: xAxisIndicator,
                   value: d.xVal !== undefined ? d.xVal : 'NA',
+                  labelExtra: d.xLabelExtra,
                   type: 'y-axis',
-                  year: d.xYear,
                   prefix: xIndicatorMetaData?.LabelPrefix,
                   suffix: xIndicatorMetaData?.LabelSuffix,
                 },
@@ -300,8 +292,8 @@ export const HorizontalBarChart = (props: Props) => {
                 rowData.push({
                   title: colorIndicator,
                   value: d.colorVal !== undefined ? d.colorVal : 'NA',
+                  labelExtra: d.colorLabelExtra,
                   type: 'color',
-                  year: colorIndicator === 'Income Groups' ? undefined : d.colorYear,
                   color: d.colorVal ? colorScale(d.colorVal) as string : '#666',
                   prefix: colorIndicatorMetaData?.LabelPrefix,
                   suffix: colorIndicatorMetaData?.LabelSuffix,

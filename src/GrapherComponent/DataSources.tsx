@@ -1,11 +1,11 @@
 import { useContext } from 'react';
 import styled from 'styled-components';
 import { CSVLink } from 'react-csv';
-import { CtxDataType, DataType, IndicatorMetaDataWithYear } from '../Types';
+import { CtxDataType, DataType, IndicatorMetaDataType } from '../Types';
 import Context from '../Context/Context';
 
 interface Props {
-  indicators: IndicatorMetaDataWithYear[];
+  indicators: IndicatorMetaDataType[];
   data: DataType[];
 }
 
@@ -53,12 +53,6 @@ const HeaderEl = styled.div`
   top: 0;
 `;
 
-const YearSpan = styled.div`
-  background-color: var(--black-300);
-  padding: 0.3rem;
-  margin: 0 0.5rem 0.5rem 0.5rem;
-`;
-
 const YearEl = styled.div`
   display: flex;
   flex-wrap: wrap;
@@ -90,25 +84,16 @@ const HR = styled.hr`
   border: 1px solid var(--black-400);
 `;
 
-const dataTable = (data: DataType[], indicator: IndicatorMetaDataWithYear) => {
+const dataTable = (data: DataType[], indicator: IndicatorMetaDataType) => {
   const table: any = [];
   data.forEach((d) => {
     const country = d['Country or Area'];
     const countryCode = d['Alpha-3 code-1'];
-    indicator.years.forEach((year) => {
-      if (d.indicatorAvailable.indexOf(indicator.DataKey) !== -1) {
-        const indicatorIndex = d.indicators.findIndex((ind) => ind.indicator === indicator.DataKey);
-        if (indicatorIndex !== -1) {
-          const yearIndex = d.indicators[indicatorIndex].yearlyData.findIndex((yr) => year === yr.year);
-          const value = d.indicators[indicatorIndex].yearlyData[yearIndex]?.value;
-          table.push({
-            country,
-            countryCode,
-            year,
-            value,
-          });
-        }
-      }
+    const value = d.data[d.data.findIndex((el) => el.indicator === indicator.DataKey)]?.value;
+    table.push({
+      country,
+      countryCode,
+      value,
     });
   });
   return table;
@@ -128,13 +113,13 @@ export const DataSources = (props: Props) => {
     updateShowSource,
   } = useContext(Context) as CtxDataType;
 
-  const xIndicatorMetaData = indicators[indicators.findIndex((d) => d.IndicatorLabelTable === xAxisIndicator)];
+  const xIndicatorMetaData = indicators[indicators.findIndex((d) => d.Indicator === xAxisIndicator)];
 
-  const yIndicatorMetaData = indicators[indicators.findIndex((d) => d.IndicatorLabelTable === yAxisIndicator)];
+  const yIndicatorMetaData = indicators[indicators.findIndex((d) => d.Indicator === yAxisIndicator)];
 
-  const sizeIndicatorMetaData = indicators[indicators.findIndex((d) => d.IndicatorLabelTable === sizeIndicator)];
+  const sizeIndicatorMetaData = indicators[indicators.findIndex((d) => d.Indicator === sizeIndicator)];
 
-  const colorIndicatorMetaData = colorIndicator === 'Human Development Index' ? indicators[indicators.findIndex((d) => d.IndicatorLabelTable === 'Human development index (HDI)')] : indicators[indicators.findIndex((d) => d.IndicatorLabelTable === colorIndicator)];
+  const colorIndicatorMetaData = colorIndicator === 'Human Development Index' ? indicators[indicators.findIndex((d) => d.Indicator === 'Human development index (HDI)')] : indicators[indicators.findIndex((d) => d.Indicator === colorIndicator)];
 
   return (
     <El>
@@ -144,14 +129,14 @@ export const DataSources = (props: Props) => {
         </div>
         <button className='primary' type='button' onClick={() => { updateShowSource(false); }}>Close</button>
       </HeaderEl>
-      <TitleEl>{xIndicatorMetaData.IndicatorLabelTable}</TitleEl>
+      <TitleEl>{xIndicatorMetaData.Indicator}</TitleEl>
       <RowEl>
         <FirstColumn>Description</FirstColumn>
         <div>{xIndicatorMetaData.IndicatorDescription}</div>
       </RowEl>
       <RowEl>
-        <FirstColumn>Years Available</FirstColumn>
-        <YearEl>{xIndicatorMetaData.years.map((d) => <YearSpan>{d}</YearSpan>)}</YearEl>
+        <FirstColumn>Last Updated</FirstColumn>
+        <YearEl>01-Jan-2020</YearEl>
       </RowEl>
       <RowEl>
         <FirstColumn>Data By</FirstColumn>
@@ -160,7 +145,7 @@ export const DataSources = (props: Props) => {
       <RowEl>
         <FirstColumn>Data Link</FirstColumn>
         {
-          xIndicatorMetaData.DataSourceLink !== ''
+          xIndicatorMetaData.DataSourceLink !== '' && xIndicatorMetaData.DataSourceLink !== undefined
             ? (
               <div>
                 {
@@ -203,14 +188,14 @@ export const DataSources = (props: Props) => {
         graphType !== 'barGraph' && yIndicatorMetaData ? (
           <>
             <HR />
-            <TitleEl>{yIndicatorMetaData.IndicatorLabelTable}</TitleEl>
+            <TitleEl>{yIndicatorMetaData.Indicator}</TitleEl>
             <RowEl>
               <FirstColumn>Description</FirstColumn>
               <div>{yIndicatorMetaData.IndicatorDescription}</div>
             </RowEl>
             <RowEl>
-              <FirstColumn>Years Available</FirstColumn>
-              <YearEl>{yIndicatorMetaData.years.map((d) => <YearSpan>{d}</YearSpan>)}</YearEl>
+              <FirstColumn>Last Updated</FirstColumn>
+              <YearEl>01-Jan-2020</YearEl>
             </RowEl>
             <RowEl>
               <FirstColumn>Data By</FirstColumn>
@@ -219,7 +204,7 @@ export const DataSources = (props: Props) => {
             <RowEl>
               <FirstColumn>Data Link</FirstColumn>
               {
-                yIndicatorMetaData.DataSourceLink !== ''
+                yIndicatorMetaData.DataSourceLink !== '' && yIndicatorMetaData.DataSourceLink !== undefined
                   ? (
                     <div>
                       {
@@ -265,14 +250,14 @@ export const DataSources = (props: Props) => {
         graphType !== 'map' && colorIndicatorMetaData ? (
           <>
             <HR />
-            <TitleEl>{colorIndicatorMetaData.IndicatorLabelTable}</TitleEl>
+            <TitleEl>{colorIndicatorMetaData.Indicator}</TitleEl>
             <RowEl>
               <FirstColumn>Description</FirstColumn>
               <div>{colorIndicatorMetaData.IndicatorDescription}</div>
             </RowEl>
             <RowEl>
-              <FirstColumn>Years Available</FirstColumn>
-              <YearEl>{colorIndicatorMetaData.years.map((d) => <YearSpan>{d}</YearSpan>)}</YearEl>
+              <FirstColumn>Last Updated</FirstColumn>
+              <YearEl>01-Jan-2020</YearEl>
             </RowEl>
             <RowEl>
               <FirstColumn>Data By</FirstColumn>
@@ -281,7 +266,7 @@ export const DataSources = (props: Props) => {
             <RowEl>
               <FirstColumn>Data Link</FirstColumn>
               {
-                colorIndicatorMetaData.DataSourceLink !== ''
+                colorIndicatorMetaData.DataSourceLink !== '' && colorIndicatorMetaData.DataSourceLink !== undefined
                   ? (
                     <div>
                       {
@@ -327,14 +312,14 @@ export const DataSources = (props: Props) => {
         (graphType === 'scatterPlot' || graphType === 'map') && sizeIndicatorMetaData ? (
           <>
             <HR />
-            <TitleEl>{sizeIndicatorMetaData.IndicatorLabelTable}</TitleEl>
+            <TitleEl>{sizeIndicatorMetaData.Indicator}</TitleEl>
             <RowEl>
               <FirstColumn>Description</FirstColumn>
               <div>{sizeIndicatorMetaData.IndicatorDescription}</div>
             </RowEl>
             <RowEl>
-              <FirstColumn>Years Available</FirstColumn>
-              <YearEl>{sizeIndicatorMetaData.years.map((d) => <YearSpan>{d}</YearSpan>)}</YearEl>
+              <FirstColumn>Last Updated</FirstColumn>
+              <YearEl>01-Jan-2020</YearEl>
             </RowEl>
             <RowEl>
               <FirstColumn>Data By</FirstColumn>
@@ -343,7 +328,7 @@ export const DataSources = (props: Props) => {
             <RowEl>
               <FirstColumn>Data Link</FirstColumn>
               {
-                sizeIndicatorMetaData.DataSourceLink !== ''
+                sizeIndicatorMetaData.DataSourceLink !== '' && sizeIndicatorMetaData.DataSourceLink !== undefined
                   ? (
                     <div>
                       {

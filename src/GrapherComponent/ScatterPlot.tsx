@@ -4,7 +4,6 @@ import {
 import styled from 'styled-components';
 import { format } from 'd3-format';
 import maxBy from 'lodash.maxby';
-import max from 'lodash.max';
 import orderBy from 'lodash.orderby';
 import { Delaunay } from 'd3-delaunay';
 import {
@@ -13,7 +12,7 @@ import {
 import minBy from 'lodash.minby';
 import { Tooltip } from '../Components/Tooltip';
 import {
-  CtxDataType, DataType, HoverDataType, HoverRowDataType, IndicatorMetaDataWithYear,
+  CtxDataType, DataType, HoverDataType, HoverRowDataType, IndicatorMetaDataType,
 } from '../Types';
 import Context from '../Context/Context';
 import {
@@ -22,7 +21,7 @@ import {
 
 interface Props {
   data: DataType[];
-  indicators: IndicatorMetaDataWithYear[];
+  indicators: IndicatorMetaDataType[];
 }
 
 const El = styled.div`
@@ -35,10 +34,8 @@ export const ScatterPlot = (props: Props) => {
     indicators,
   } = props;
   const {
-    year,
     xAxisIndicator,
     yAxisIndicator,
-    showMostRecentData,
     showLabel,
     sizeIndicator,
     colorIndicator,
@@ -60,60 +57,42 @@ export const ScatterPlot = (props: Props) => {
   };
   const graphWidth = svgWidth - margin.left - margin.right;
   const graphHeight = svgHeight - margin.top - margin.bottom;
-  const xIndicatorMetaData = indicators[indicators.findIndex((indicator) => indicator.IndicatorLabelTable === xAxisIndicator)];
-  const yIndicatorMetaData = indicators[indicators.findIndex((indicator) => indicator.IndicatorLabelTable === yAxisIndicator)];
-  const sizeIndicatorMetaData = indicators[indicators.findIndex((indicator) => indicator.IndicatorLabelTable === sizeIndicator)];
-  const colorIndicatorMetaData = indicators[indicators.findIndex((indicator) => indicator.IndicatorLabelTable === colorIndicator)];
-  const maxRadiusValue = [0];
-  if (sizeIndicatorMetaData) {
-    data.forEach((d) => {
-      const indicatorIndex = d.indicators.findIndex((el) => sizeIndicatorMetaData.DataKey === el.indicator);
-      if (indicatorIndex !== -1) {
-        if (maxBy(d.indicators[indicatorIndex].yearlyData, (el) => el.value)?.value !== undefined) { maxRadiusValue.push(maxBy(d.indicators[indicatorIndex].yearlyData, (el) => el.value)?.value as number); }
-      }
-    });
-  }
-  const radiusScale = sizeIndicatorMetaData ? scaleSqrt().domain([0, max(maxRadiusValue) as number]).range([0.25, 30]).nice() : undefined;
+  const xIndicatorMetaData = indicators[indicators.findIndex((indicator) => indicator.Indicator === xAxisIndicator)];
+  const yIndicatorMetaData = indicators[indicators.findIndex((indicator) => indicator.Indicator === yAxisIndicator)];
+  const sizeIndicatorMetaData = indicators[indicators.findIndex((indicator) => indicator.Indicator === sizeIndicator)];
+  const colorIndicatorMetaData = indicators[indicators.findIndex((indicator) => indicator.Indicator === colorIndicator)];
+  const sizeMax = sizeIndicatorMetaData ? maxBy(data, (d) => d.data[d.data.findIndex((el) => el.indicator === sizeIndicatorMetaData.DataKey)]?.value) : undefined;
+  const radiusScale = sizeIndicatorMetaData && sizeMax ? scaleSqrt().domain([0, sizeMax.data[sizeMax.data.findIndex((el) => el.indicator === sizeIndicatorMetaData.DataKey)].value as number]).range([0.25, 30]).nice() : undefined;
 
   const dataFormatted = orderBy(
     data.map((d) => {
-      const xIndicatorIndex = d.indicators.findIndex((el) => xIndicatorMetaData.DataKey === el.indicator);
-      const yIndicatorIndex = d.indicators.findIndex((el) => yIndicatorMetaData.DataKey === el.indicator);
-      const colorIndicatorIndex = colorIndicator === 'Human Development Index' ? d.indicators.findIndex((el) => el.indicator === 'Human development index (HDI)') : d.indicators.findIndex((el) => colorIndicatorMetaData?.DataKey === el.indicator);
-      const radiusIndicatorIndex = radiusScale ? d.indicators.findIndex((el) => sizeIndicatorMetaData?.DataKey === el.indicator) : -1;
-
-      const radiusValue = !radiusScale ? 5 : radiusIndicatorIndex === -1 ? undefined
-        : year !== -1 && !showMostRecentData ? d.indicators[radiusIndicatorIndex].yearlyData[d.indicators[radiusIndicatorIndex].yearlyData.findIndex((el) => el.year === year)]?.value
-          : d.indicators[radiusIndicatorIndex].yearlyData[d.indicators[radiusIndicatorIndex].yearlyData.length - 1]?.value;
-      const xVal = xIndicatorIndex === -1 ? undefined
-        : year !== -1 && !showMostRecentData ? d.indicators[xIndicatorIndex].yearlyData[d.indicators[xIndicatorIndex].yearlyData.findIndex((el) => el.year === year)]?.value
-          : d.indicators[xIndicatorIndex].yearlyData[d.indicators[xIndicatorIndex].yearlyData.length - 1]?.value;
-      const yVal = yIndicatorIndex === -1 ? undefined
-        : year !== -1 && !showMostRecentData ? d.indicators[yIndicatorIndex].yearlyData[d.indicators[yIndicatorIndex].yearlyData.findIndex((el) => el.year === year)]?.value
-          : d.indicators[yIndicatorIndex].yearlyData[d.indicators[yIndicatorIndex].yearlyData.length - 1]?.value;
+      const xIndicatorIndex = d.data.findIndex((el) => xIndicatorMetaData.DataKey === el.indicator);
+      const yIndicatorIndex = d.data.findIndex((el) => yIndicatorMetaData.DataKey === el.indicator);
+      const colorIndicatorIndex = colorIndicator === 'Human Development Index' ? d.data.findIndex((el) => el.indicator === 'Human development index (HDI)') : d.data.findIndex((el) => colorIndicatorMetaData?.DataKey === el.indicator);
+      const radiusIndicatorIndex = radiusScale ? d.data.findIndex((el) => sizeIndicatorMetaData?.DataKey === el.indicator) : -1;
+      const radiusValue = !radiusScale ? 5 : radiusIndicatorIndex === -1 ? undefined : d.data[radiusIndicatorIndex].value;
+      const radiusLabelExtra = !radiusScale || radiusIndicatorIndex === -1 ? undefined : d.data[radiusIndicatorIndex].labelExtra;
+      const xVal = xIndicatorIndex === -1 ? undefined : d.data[xIndicatorIndex].value;
+      const xLabelExtra = xIndicatorIndex === -1 ? undefined : d.data[xIndicatorIndex].labelExtra;
+      const yVal = yIndicatorIndex === -1 ? undefined : d.data[yIndicatorIndex].value;
+      const yLabelExtra = yIndicatorIndex === -1 ? undefined : d.data[yIndicatorIndex].labelExtra;
       const colorVal = colorIndicator === 'Continents' ? d['Group 1']
         : colorIndicator === 'Income Groups' ? d['Income group']
-          : colorIndicator === 'Human Development Index' ? year !== -1 && !showMostRecentData ? d.indicators[colorIndicatorIndex].yearlyData[d.indicators[colorIndicatorIndex].yearlyData.findIndex((el) => el.year === year)]?.value
-            : d.indicators[colorIndicatorIndex].yearlyData[d.indicators[colorIndicatorIndex].yearlyData.length - 1]?.value
-            : colorIndicatorIndex === -1 ? undefined
-              : year !== -1 && !showMostRecentData ? d.indicators[colorIndicatorIndex].yearlyData[d.indicators[colorIndicatorIndex].yearlyData.findIndex((el) => el.year === year)]?.value
-                : d.indicators[colorIndicatorIndex].yearlyData[d.indicators[colorIndicatorIndex].yearlyData.length - 1]?.value;
+          : colorIndicatorIndex === -1 ? undefined
+            : d.data[colorIndicatorIndex].value;
+      const colorLabelExtra = colorIndicatorIndex === -1 ? undefined : d.data[colorIndicatorIndex].labelExtra;
       const countryGroup = selectedCountryGroup === 'All' ? true : d[selectedCountryGroup];
       const region = !!(selectedRegions.length === 0 || selectedRegions.indexOf(d['Group 2']) !== -1);
-      const xYear = year === -1 || showMostRecentData ? d.indicators[xIndicatorIndex].yearlyData[d.indicators[xIndicatorIndex].yearlyData.length - 1]?.year : year;
-      const yYear = year === -1 || showMostRecentData ? d.indicators[yIndicatorIndex].yearlyData[d.indicators[yIndicatorIndex].yearlyData.length - 1]?.year : year;
-      const radiusYear = (year === -1 || showMostRecentData) && radiusIndicatorIndex !== -1 ? d.indicators[radiusIndicatorIndex].yearlyData[d.indicators[radiusIndicatorIndex].yearlyData.length - 1]?.year : year;
-      const colorYear = (year === -1 || showMostRecentData) && colorIndicatorIndex !== -1 ? d.indicators[colorIndicatorIndex].yearlyData[d.indicators[colorIndicatorIndex].yearlyData.length - 1]?.year : year;
       return ({
         countryCode: d['Alpha-3 code-1'],
         radiusValue,
+        radiusLabelExtra,
         xVal,
+        xLabelExtra,
         yVal,
-        xYear,
-        yYear,
-        radiusYear,
-        colorYear,
+        yLabelExtra,
         colorVal,
+        colorLabelExtra,
         region,
         countryGroup,
       });
@@ -197,7 +176,7 @@ export const ScatterPlot = (props: Props) => {
             fontSize={14}
             fill='#212121'
           >
-            {colorIndicatorMetaData?.IndicatorLabelTable ? colorIndicatorMetaData?.IndicatorLabelTable : colorIndicator}
+            {colorIndicatorMetaData?.Indicator ? colorIndicatorMetaData?.Indicator : colorIndicator}
           </text>
           {
             colorIndicator === 'Human Development Index' ? COLOR_SCALES.Divergent.Color4.map((d, i) => (
@@ -327,9 +306,9 @@ export const ScatterPlot = (props: Props) => {
               transform={`translate(-50, ${graphHeight / 2}) rotate(-90)`}
               fill='#212121'
               textAnchor='middle'
-              fontSize={yIndicatorMetaData.IndicatorLabelTable.length > MAX_TEXT_LENGTH ? 10 : 12}
+              fontSize={yIndicatorMetaData.Indicator.length > MAX_TEXT_LENGTH ? 10 : 12}
             >
-              {yIndicatorMetaData.IndicatorLabelTable.length > TRUNCATE_MAX_TEXT_LENGTH ? `${yIndicatorMetaData.IndicatorLabelTable.substring(0, TRUNCATE_MAX_TEXT_LENGTH)}...` : yIndicatorMetaData.IndicatorLabelTable}
+              {yIndicatorMetaData.Indicator.length > TRUNCATE_MAX_TEXT_LENGTH ? `${yIndicatorMetaData.Indicator.substring(0, TRUNCATE_MAX_TEXT_LENGTH)}...` : yIndicatorMetaData.Indicator}
             </text>
           </g>
           <g>
@@ -380,10 +359,10 @@ export const ScatterPlot = (props: Props) => {
               transform={`translate(${graphWidth / 2}, ${graphHeight})`}
               fill='#212121'
               textAnchor='middle'
-              fontSize={yIndicatorMetaData.IndicatorLabelTable.length > MAX_TEXT_LENGTH ? 10 : 12}
+              fontSize={yIndicatorMetaData.Indicator.length > MAX_TEXT_LENGTH ? 10 : 12}
               dy={30}
             >
-              {xIndicatorMetaData.IndicatorLabelTable.length > TRUNCATE_MAX_TEXT_LENGTH ? `${xIndicatorMetaData.IndicatorLabelTable.substring(0, TRUNCATE_MAX_TEXT_LENGTH)}...` : xIndicatorMetaData.IndicatorLabelTable}
+              {xIndicatorMetaData.Indicator.length > TRUNCATE_MAX_TEXT_LENGTH ? `${xIndicatorMetaData.Indicator.substring(0, TRUNCATE_MAX_TEXT_LENGTH)}...` : xIndicatorMetaData.Indicator}
             </text>
           </g>
 
@@ -397,16 +376,16 @@ export const ScatterPlot = (props: Props) => {
                 {
                   title: xAxisIndicator,
                   value: d.xVal !== undefined ? d.xVal : 'NA',
+                  labelExtra: d.xLabelExtra,
                   type: 'x-axis',
-                  year: d.xYear,
                   prefix: xIndicatorMetaData?.LabelPrefix,
                   suffix: xIndicatorMetaData?.LabelSuffix,
                 },
                 {
                   title: yAxisIndicator,
                   value: d.yVal !== undefined ? d.yVal : 'NA',
+                  labelExtra: d.yLabelExtra,
                   type: 'y-axis',
-                  year: d.yYear,
                   prefix: yIndicatorMetaData?.LabelPrefix,
                   suffix: yIndicatorMetaData?.LabelSuffix,
                 },
@@ -415,8 +394,8 @@ export const ScatterPlot = (props: Props) => {
                 rowData.push({
                   title: sizeIndicator,
                   value: d.radiusValue !== undefined ? d.radiusValue : 'NA',
+                  labelExtra: d.radiusLabelExtra,
                   type: 'size',
-                  year: d.radiusYear,
                   prefix: sizeIndicatorMetaData?.LabelPrefix,
                   suffix: sizeIndicatorMetaData?.LabelSuffix,
                 });
@@ -425,8 +404,8 @@ export const ScatterPlot = (props: Props) => {
                 rowData.push({
                   title: colorIndicator,
                   value: d.colorVal !== undefined ? d.colorVal : 'NA',
+                  labelExtra: d.colorLabelExtra,
                   type: 'color',
-                  year: colorIndicator === 'Income Groups' ? undefined : d.colorYear,
                   color: d.colorVal ? colorScale(d.colorVal) as string : '#666',
                   prefix: colorIndicatorMetaData?.LabelPrefix,
                   suffix: colorIndicatorMetaData?.LabelSuffix,

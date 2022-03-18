@@ -1,16 +1,12 @@
 /* eslint-disable jsx-a11y/iframe-has-title */
 import { useState, useEffect, useReducer } from 'react';
 import styled, { createGlobalStyle } from 'styled-components';
-import { json } from 'd3-request';
-import { nest } from 'd3-collection';
-import sortBy from 'lodash.sortby';
+import { json, csv } from 'd3-request';
 import uniqBy from 'lodash.uniqby';
 import { queue } from 'd3-queue';
 import { Spin } from 'antd';
 import 'antd/dist/antd.css';
-import {
-  DataType, CountryGroupDataType, IndicatorMetaDataType, IndicatorMetaDataWithYear,
-} from './Types';
+import { DataType, CountryGroupDataType, IndicatorMetaDataType } from './Types';
 import { GrapherComponent } from './GrapherComponent';
 import Reducer from './Context/Reducer';
 import Context from './Context/Context';
@@ -170,6 +166,13 @@ const GlobalStyle = createGlobalStyle`
   .ant-tooltip-arrow-content{
     background-color: var(--black-550) !important;
   }
+
+  .ant-select-item-group{
+    color: var(--primary-blue) !important;
+    font-size: 1.4rem !important;
+    text-transform: uppercase !important;
+    font-weight: bold !important;
+  }
 `;
 
 const VizAreaEl = styled.div`
@@ -183,7 +186,7 @@ const VizAreaEl = styled.div`
 
 const App = () => {
   const [finalData, setFinalData] = useState<DataType[] | undefined>(undefined);
-  const [indicatorsList, setIndicatorsList] = useState<IndicatorMetaDataWithYear[] | undefined>(undefined);
+  const [indicatorsList, setIndicatorsList] = useState<IndicatorMetaDataType[] | undefined>(undefined);
   const [regionList, setRegionList] = useState<string[] | undefined>(undefined);
   const [countryList, setCountryList] = useState<string[] | undefined>(undefined);
   const queryParams = new URLSearchParams(window.location.search);
@@ -192,18 +195,13 @@ const App = () => {
     selectedRegions: queryParams.get('regions')?.split('~') || [],
     selectedCountries: queryParams.get('countries')?.split('~') || [],
     selectedIncomeGroups: queryParams.get('incomeGroups')?.split('~') || [],
-    year: 2021,
     selectedCountryGroup: queryParams.get('countryGroup') || 'All',
     xAxisIndicator: queryParams.get('firstMetric') || DEFAULT_VALUES.firstMetric,
     yAxisIndicator: queryParams.get('secondMetric') || DEFAULT_VALUES.secondMetric,
     colorIndicator: queryParams.get('colorMetric') || DEFAULT_VALUES.colorMetric,
     sizeIndicator: queryParams.get('sizeMetric') || undefined,
-    showMostRecentData: queryParams.get('showMostRecentData') === 'true',
     showLabel: queryParams.get('showLabel') === 'true',
     showSource: false,
-    trendChartCountry: queryParams.get('trendChartCountry') || undefined,
-    multiCountrytrendChartCountries: queryParams.get('multiCountrytrendChartCountries')?.split('~') || ['China', 'India', 'United States of America', 'Indonesia', 'Pakistan'],
-    useSameRange: queryParams.get('useSameRange') === 'true',
     reverseOrder: queryParams.get('reverseOrder') === 'true',
     verticalBarLayout: queryParams.get('verticalBarLayout') !== 'false',
   };
@@ -217,24 +215,10 @@ const App = () => {
     });
   };
 
-  const updateMultiCountrytrendChartCountries = (multiCountrytrendChartCountries: string[]) => {
-    dispatch({
-      type: 'UPDATE_MULTI_COUNTRY_TREND_CHART_COUNTRIES',
-      payload: multiCountrytrendChartCountries,
-    });
-  };
-
   const updateReverseOrder = (reverseOrder: boolean) => {
     dispatch({
       type: 'UPDATE_REVERSE_ORDER',
       payload: reverseOrder,
-    });
-  };
-
-  const updateTrendChartCountry = (trendChartCountry: string) => {
-    dispatch({
-      type: 'UPDATE_TREND_CHART_COUNTRY',
-      payload: trendChartCountry,
     });
   };
 
@@ -249,12 +233,6 @@ const App = () => {
     dispatch({
       type: 'UPDATE_SELECTED_COUNTRIES',
       payload: selectedCountries,
-    });
-  };
-  const updateYear = (year: number) => {
-    dispatch({
-      type: 'UPDATE_YEAR',
-      payload: year,
     });
   };
 
@@ -321,12 +299,6 @@ const App = () => {
     });
   };
 
-  const updateUseSameRange = (useSameRange: boolean) => {
-    dispatch({
-      type: 'UPDATE_USE_SAME_RANGE',
-      payload: useSameRange,
-    });
-  };
   const updateBarLayout = (varticalBarLayout: boolean) => {
     dispatch({
       type: 'UPDATE_BAR_LAYOUT',
@@ -336,76 +308,24 @@ const App = () => {
 
   useEffect(() => {
     queue()
-      .defer(json, './data/ALL-DATA.json')
-      .defer(json, 'https://raw.githubusercontent.com/UNDP-Data/Indicators-MetaData/main/indicatorMetaData.json')
+      .defer(csv, './data/Data.csv')
+      .defer(json, './data/indicatorMetaData.json')
       .defer(json, 'https://raw.githubusercontent.com/UNDP-Data/Country-Taxonomy/main/country-territory-groups.json')
       .await((err: any, data: any[], indicatorMetaData: IndicatorMetaDataType[], countryGroupData: CountryGroupDataType[]) => {
         if (err) throw err;
-        const dataWithYear = data.map((d: any) => {
-          const Year = new Date(d.Year).getFullYear();
-          return { ...d, Year };
-        });
-
-        const groupedData = nest()
-          .key((d: any) => d['Alpha-3 code'])
-          .entries(dataWithYear);
-        const indicators: string[] = [];
-        dataWithYear.forEach((d: any) => {
-          const keys = Object.keys(d);
-          keys.forEach((key) => {
-            if (indicators.indexOf(key) === -1 && key !== 'Alpha-3 code' && key !== 'Country or Area' && key !== 'Year') { indicators.push(key); }
-          });
-        });
-        const countryIndicatorObj = indicators.map((d: string) => {
-          const yearList: number[] = [];
-          dataWithYear.forEach((el: any) => {
-            if (el[d] && yearList.indexOf(el.Year) === -1) {
-              yearList.push(el.Year);
-            }
-          });
-          return ({
-            indicator: d,
-            yearAvailable: sortBy(yearList),
-            yearlyData: sortBy(yearList).map((year) => ({
-              year,
-              value: undefined,
-            })),
-          });
-        });
-        const countryData = groupedData.map((d) => {
-          const countryGroup = countryGroupData[countryGroupData.findIndex((el) => el['Alpha-3 code-1'] === d.key)];
-          const indTemp = countryIndicatorObj.map((indicatorObj) => {
-            const yearlyData = indicatorObj.yearlyData.map((year) => {
-              const indx = d.values.findIndex((val: { Year: string; }) => parseInt(val.Year, 10) === year.year);
-              const value: undefined | number = indx !== -1 ? d.values[indx][indicatorObj.indicator] : undefined;
-              return (
-                {
-                  ...year,
-                  value,
-                }
-              );
-            }).filter((val) => val.value !== undefined);
-            return (
-              {
-                ...indicatorObj,
-                yearlyData,
-              }
-            );
-          });
-          return ({
-            ...countryGroup,
-            indicatorAvailable: indTemp.map((ind) => ind.indicator),
-            indicators: indTemp,
-          });
-        });
-        setFinalData(countryData);
-        setCountryList(countryData.map((d) => d['Country or Area']));
-        setRegionList(uniqBy(countryData, (d) => d['Group 2']).map((d) => d['Group 2']));
-        const indicatorWithYears: IndicatorMetaDataWithYear[] = indicatorMetaData.map((d) => ({
-          ...d,
-          years: countryIndicatorObj[countryIndicatorObj.findIndex((el) => el.indicator === d.DataKey)].yearAvailable,
-        }));
-        setIndicatorsList(indicatorWithYears);
+        const dataFormatted = data.filter((d) => countryGroupData.findIndex((country) => country['Alpha-3 code-1'] === d.iso3) !== -1).map((d: any) => {
+          const countryData = countryGroupData[countryGroupData.findIndex((country) => country['Alpha-3 code-1'] === d.iso3)];
+          const indicatorData = indicatorMetaData.map((indicator) => ({
+            indicator: indicator.DataKey,
+            value: d[indicator.DataKey] === '' ? undefined : indicator.DataKey === 'first_vaccine_date' ? Math.floor((new Date().getTime() - new Date(Date.parse(`${d[indicator.DataKey]}GMT`)).getTime()) / (24 * 3600 * 1000)) : +d[indicator.DataKey],
+            labelExtra: d[indicator.DataKey] === '' ? undefined : indicator.DataKey === 'first_vaccine_date' ? d[indicator.DataKey] : indicator.LabelExtra ? d[indicator.LabelExtra] : undefined,
+          }));
+          return { ...countryData, data: indicatorData };
+        }).filter((d) => d !== null);
+        setFinalData(dataFormatted);
+        setCountryList(dataFormatted.map((d) => d['Country or Area']));
+        setRegionList(uniqBy(dataFormatted, (d) => d['Group 2']).map((d) => d['Group 2']));
+        setIndicatorsList(indicatorMetaData);
       });
   }, []);
   return (
@@ -420,7 +340,6 @@ const App = () => {
                   ...state,
                   updateGraphType,
                   updateSelectedRegions,
-                  updateYear,
                   updateSelectedCountries,
                   updateSelectedCountryGroup,
                   updateXAxisIndicator,
@@ -431,9 +350,6 @@ const App = () => {
                   updateShowMostRecentData,
                   updateShowLabel,
                   updateShowSource,
-                  updateTrendChartCountry,
-                  updateMultiCountrytrendChartCountries,
-                  updateUseSameRange,
                   updateReverseOrder,
                   updateBarLayout,
                 }}

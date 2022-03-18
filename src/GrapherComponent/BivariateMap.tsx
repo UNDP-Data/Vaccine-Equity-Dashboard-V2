@@ -7,12 +7,11 @@ import { zoom } from 'd3-zoom';
 import { format } from 'd3-format';
 import { select } from 'd3-selection';
 import maxBy from 'lodash.maxby';
-import max from 'lodash.max';
 import {
   scaleThreshold, scaleOrdinal, scaleSqrt,
 } from 'd3-scale';
 import {
-  CtxDataType, DataType, HoverDataType, HoverRowDataType, IndicatorMetaDataWithYear,
+  CtxDataType, DataType, HoverDataType, HoverRowDataType, IndicatorMetaDataType,
 } from '../Types';
 import Context from '../Context/Context';
 import World from '../Data/worldMap.json';
@@ -21,7 +20,7 @@ import { Tooltip } from '../Components/Tooltip';
 
 interface Props {
   data: DataType[];
-  indicators: IndicatorMetaDataWithYear[];
+  indicators: IndicatorMetaDataType[];
 }
 
 const El = styled.div`
@@ -97,11 +96,9 @@ export const BivariateMap = (props: Props) => {
     indicators,
   } = props;
   const {
-    year,
     xAxisIndicator,
     yAxisIndicator,
     sizeIndicator,
-    showMostRecentData,
     selectedCountries,
     selectedRegions,
     selectedIncomeGroups,
@@ -115,8 +112,8 @@ export const BivariateMap = (props: Props) => {
   const mapSvg = useRef<SVGSVGElement>(null);
   const mapG = useRef<SVGGElement>(null);
   const projection = geoEqualEarth().rotate([0, 0]).scale(200).translate([450, 350]);
-  const xIndicatorMetaData = indicators[indicators.findIndex((indicator) => indicator.IndicatorLabelTable === xAxisIndicator)];
-  const yIndicatorMetaData = indicators[indicators.findIndex((indicator) => indicator.IndicatorLabelTable === yAxisIndicator)];
+  const xIndicatorMetaData = indicators[indicators.findIndex((indicator) => indicator.Indicator === xAxisIndicator)];
+  const yIndicatorMetaData = indicators[indicators.findIndex((indicator) => indicator.Indicator === yAxisIndicator)];
 
   const xDomain = xIndicatorMetaData.IsCategorical ? xIndicatorMetaData.Categories : xIndicatorMetaData.BinningRange5;
   const yDomain = yIndicatorMetaData.IsCategorical ? yIndicatorMetaData.Categories : yIndicatorMetaData.BinningRange5;
@@ -145,17 +142,9 @@ export const BivariateMap = (props: Props) => {
 
   const xScale = xIndicatorMetaData.IsCategorical ? scaleOrdinal<number, number>().domain(xDomain).range(xRange) : scaleThreshold<number, number>().domain(xDomain).range(xRange);
   const yScale = xIndicatorMetaData.IsCategorical ? scaleOrdinal<number, number>().domain(yDomain).range(yRange) : scaleThreshold<number, number>().domain(yDomain).range(yRange);
-  const sizeIndicatorMetaData = indicators[indicators.findIndex((indicator) => indicator.IndicatorLabelTable === sizeIndicator)];
-  const maxRadiusValue = [0];
-  if (sizeIndicator) {
-    data.forEach((d) => {
-      const indicatorIndex = d.indicators.findIndex((el) => sizeIndicatorMetaData.DataKey === el.indicator);
-      if (indicatorIndex !== -1) {
-        if (maxBy(d.indicators[indicatorIndex].yearlyData, (el) => el.value)?.value !== undefined) { maxRadiusValue.push(maxBy(d.indicators[indicatorIndex].yearlyData, (el) => el.value)?.value as number); }
-      }
-    });
-  }
-  const radiusScale = scaleSqrt().domain([0, max(maxRadiusValue) as number]).range([0.25, 40]).nice();
+  const sizeIndicatorMetaData = indicators[indicators.findIndex((indicator) => indicator.Indicator === sizeIndicator)];
+  const sizeMax = sizeIndicatorMetaData ? maxBy(data, (d) => d.data[d.data.findIndex((el) => el.indicator === sizeIndicatorMetaData.DataKey)]?.value) : undefined;
+  const radiusScale = sizeIndicatorMetaData && sizeMax ? scaleSqrt().domain([0, sizeMax.data[sizeMax.data.findIndex((el) => el.indicator === sizeIndicatorMetaData.DataKey)].value as number]).range([0.25, 30]).nice() : undefined;
   useEffect(() => {
     const mapGSelect = select(mapG.current);
     const mapSvgSelect = select(mapSvg.current);
@@ -227,14 +216,10 @@ export const BivariateMap = (props: Props) => {
           {
             data.map((d, i: number) => {
               const index = (World as any).features.findIndex((el: any) => d['Alpha-3 code-1'] === el.properties.ISO3);
-              const xIndicatorIndex = d.indicators.findIndex((el) => xIndicatorMetaData.DataKey === el.indicator);
-              const yIndicatorIndex = d.indicators.findIndex((el) => yIndicatorMetaData.DataKey === el.indicator);
-              const xVal = xIndicatorIndex === -1 ? undefined
-                : year !== -1 && !showMostRecentData ? d.indicators[xIndicatorIndex].yearlyData[d.indicators[xIndicatorIndex].yearlyData.findIndex((el) => el.year === year)]?.value
-                  : d.indicators[xIndicatorIndex].yearlyData[d.indicators[xIndicatorIndex].yearlyData.length - 1]?.value;
-              const yVal = yIndicatorIndex === -1 ? undefined
-                : year !== -1 && !showMostRecentData ? d.indicators[yIndicatorIndex].yearlyData[d.indicators[yIndicatorIndex].yearlyData.findIndex((el) => el.year === year)]?.value
-                  : d.indicators[yIndicatorIndex].yearlyData[d.indicators[yIndicatorIndex].yearlyData.length - 1]?.value;
+              const xIndicatorIndex = d.data.findIndex((el) => xIndicatorMetaData.DataKey === el.indicator);
+              const yIndicatorIndex = d.data.findIndex((el) => yIndicatorMetaData.DataKey === el.indicator);
+              const xVal = xIndicatorIndex === -1 ? undefined : d.data[xIndicatorIndex].value;
+              const yVal = yIndicatorIndex === -1 ? undefined : d.data[yIndicatorIndex].value;
               const xColorCoord = xVal !== undefined ? xScale(xIndicatorMetaData.IsCategorical ? Math.floor(xVal) : xVal) : undefined;
               const yColorCoord = yVal !== undefined ? yScale(yIndicatorMetaData.IsCategorical ? Math.floor(yVal) : yVal) : undefined;
 
@@ -249,8 +234,8 @@ export const BivariateMap = (props: Props) => {
                 {
                   title: xAxisIndicator,
                   value: xVal === undefined ? 'NA' : xVal,
+                  labelExtra: d.data[xIndicatorIndex].labelExtra,
                   type: 'color',
-                  year: year === -1 || showMostRecentData ? d.indicators[xIndicatorIndex].yearlyData[d.indicators[xIndicatorIndex].yearlyData.length - 1]?.year : year,
                   color,
                   prefix: xIndicatorMetaData?.LabelPrefix,
                   suffix: xIndicatorMetaData?.LabelSuffix,
@@ -259,24 +244,22 @@ export const BivariateMap = (props: Props) => {
                   title: yAxisIndicator,
                   value: yVal === undefined ? 'NA' : yVal,
                   type: 'color',
-                  year: year === -1 || showMostRecentData ? d.indicators[yIndicatorIndex].yearlyData[d.indicators[yIndicatorIndex].yearlyData.length - 1]?.year : year,
+                  labelExtra: d.data[yIndicatorIndex].labelExtra,
                   color,
                   prefix: yIndicatorMetaData?.LabelPrefix,
                   suffix: yIndicatorMetaData?.LabelSuffix,
                 },
               ];
               if (sizeIndicatorMetaData) {
-                const sizeIndicatorIndex = d.indicators.findIndex((el) => sizeIndicatorMetaData?.DataKey === el.indicator);
-                const sizeVal = sizeIndicatorIndex === -1 ? undefined
-                  : year !== -1 && !showMostRecentData ? d.indicators[sizeIndicatorIndex].yearlyData[d.indicators[sizeIndicatorIndex].yearlyData.findIndex((el) => el.year === year)]?.value
-                    : d.indicators[sizeIndicatorIndex].yearlyData[d.indicators[sizeIndicatorIndex].yearlyData.length - 1]?.value;
+                const sizeIndicatorIndex = d.data.findIndex((el) => sizeIndicatorMetaData?.DataKey === el.indicator);
+                const sizeVal = sizeIndicatorIndex === -1 ? undefined : d.data[sizeIndicatorIndex].value;
                 rowData.push({
                   title: sizeIndicator,
                   value: sizeVal !== undefined ? sizeVal : 'NA',
+                  labelExtra: d.data[sizeIndicatorIndex].labelExtra,
                   type: 'size',
                   prefix: sizeIndicatorMetaData?.LabelPrefix,
                   suffix: sizeIndicatorMetaData?.LabelSuffix,
-                  year: year === -1 || showMostRecentData ? d.indicators[sizeIndicatorIndex].yearlyData[d.indicators[sizeIndicatorIndex].yearlyData.length - 1]?.year : year,
                 });
               }
 
@@ -361,19 +344,13 @@ export const BivariateMap = (props: Props) => {
               <>
                 {
                   data.map((d, i) => {
-                    const sizeIndicatorIndex = d.indicators.findIndex((el) => sizeIndicatorMetaData.DataKey === el.indicator);
-                    const sizeVal = sizeIndicatorIndex === -1 ? undefined
-                      : year !== -1 && !showMostRecentData ? d.indicators[sizeIndicatorIndex].yearlyData[d.indicators[sizeIndicatorIndex].yearlyData.findIndex((el) => el.year === year)]?.value
-                        : d.indicators[sizeIndicatorIndex].yearlyData[d.indicators[sizeIndicatorIndex].yearlyData.length - 1]?.value;
+                    const sizeIndicatorIndex = d.data.findIndex((el) => sizeIndicatorMetaData.DataKey === el.indicator);
+                    const sizeVal = sizeIndicatorIndex === -1 ? undefined : d.data[sizeIndicatorIndex].value;
                     const center = projection([d['Longitude (average)'], d['Latitude (average)']]) as [number, number];
-                    const xIndicatorIndex = d.indicators.findIndex((el) => xIndicatorMetaData.DataKey === el.indicator);
-                    const yIndicatorIndex = d.indicators.findIndex((el) => yIndicatorMetaData.DataKey === el.indicator);
-                    const xVal = xIndicatorIndex === -1 ? undefined
-                      : year !== -1 && !showMostRecentData ? d.indicators[xIndicatorIndex].yearlyData[d.indicators[xIndicatorIndex].yearlyData.findIndex((el) => el.year === year)]?.value
-                        : d.indicators[xIndicatorIndex].yearlyData[d.indicators[xIndicatorIndex].yearlyData.length - 1]?.value;
-                    const yVal = yIndicatorIndex === -1 ? undefined
-                      : year !== -1 && !showMostRecentData ? d.indicators[yIndicatorIndex].yearlyData[d.indicators[yIndicatorIndex].yearlyData.findIndex((el) => el.year === year)]?.value
-                        : d.indicators[yIndicatorIndex].yearlyData[d.indicators[yIndicatorIndex].yearlyData.length - 1]?.value;
+                    const xIndicatorIndex = d.data.findIndex((el) => xIndicatorMetaData.DataKey === el.indicator);
+                    const yIndicatorIndex = d.data.findIndex((el) => yIndicatorMetaData.DataKey === el.indicator);
+                    const xVal = xIndicatorIndex === -1 ? undefined : d.data[xIndicatorIndex].value;
+                    const yVal = yIndicatorIndex === -1 ? undefined : d.data[yIndicatorIndex].value;
                     const xColorCoord = xVal !== undefined ? xScale(xIndicatorMetaData.IsCategorical ? Math.floor(xVal) : xVal) : undefined;
                     const yColorCoord = yVal !== undefined ? yScale(yIndicatorMetaData.IsCategorical ? Math.floor(yVal) : yVal) : undefined;
 
@@ -388,7 +365,6 @@ export const BivariateMap = (props: Props) => {
                         title: xAxisIndicator,
                         value: xVal === undefined ? 'NA' : xVal,
                         type: 'color',
-                        year: year === -1 || showMostRecentData ? d.indicators[xIndicatorIndex].yearlyData[d.indicators[xIndicatorIndex].yearlyData.length - 1]?.year : year,
                         color,
                         prefix: xIndicatorMetaData?.LabelPrefix,
                         suffix: xIndicatorMetaData?.LabelSuffix,
@@ -397,7 +373,6 @@ export const BivariateMap = (props: Props) => {
                         title: yAxisIndicator,
                         value: yVal === undefined ? 'NA' : yVal,
                         type: 'color',
-                        year: year === -1 || showMostRecentData ? d.indicators[yIndicatorIndex].yearlyData[d.indicators[yIndicatorIndex].yearlyData.length - 1]?.year : year,
                         color,
                         prefix: yIndicatorMetaData?.LabelPrefix,
                         suffix: yIndicatorMetaData?.LabelSuffix,
@@ -410,7 +385,6 @@ export const BivariateMap = (props: Props) => {
                         type: 'size',
                         prefix: sizeIndicatorMetaData?.LabelPrefix,
                         suffix: sizeIndicatorMetaData?.LabelSuffix,
-                        year: year === -1 || showMostRecentData ? d.indicators[sizeIndicatorIndex].yearlyData[d.indicators[sizeIndicatorIndex].yearlyData.length - 1]?.year : year,
                       });
                     }
 
@@ -440,7 +414,7 @@ export const BivariateMap = (props: Props) => {
                         }}
                         cx={center[0]}
                         cy={center[1]}
-                        r={sizeVal !== undefined ? radiusScale(sizeVal) : 0}
+                        r={sizeVal !== undefined && radiusScale ? radiusScale(sizeVal) : 0}
                         stroke='#212121'
                         strokeWidth={1}
                         fill='none'
@@ -463,7 +437,7 @@ export const BivariateMap = (props: Props) => {
       <LegendContainer>
         <LegendEl>
           <LegendColorEl>
-            <YLegendTitle>{yIndicatorMetaData.IndicatorLabelTable}</YLegendTitle>
+            <YLegendTitle>{yIndicatorMetaData.Indicator}</YLegendTitle>
             <div>
               <svg width='135px' viewBox={`0 0 ${135} ${135}`}>
                 <g>
@@ -532,16 +506,16 @@ export const BivariateMap = (props: Props) => {
                   }
                 </g>
               </svg>
-              <XLegendTitle>{xIndicatorMetaData.IndicatorLabelTable}</XLegendTitle>
+              <XLegendTitle>{xIndicatorMetaData.Indicator}</XLegendTitle>
             </div>
           </LegendColorEl>
         </LegendEl>
         {
-          sizeIndicator
+          sizeIndicator && radiusScale
             ? (
               <LegendSizeEl>
                 <>
-                  <TitleEl>{sizeIndicatorMetaData.IndicatorLabelTable}</TitleEl>
+                  <TitleEl>{sizeIndicatorMetaData.Indicator}</TitleEl>
                   <svg width='135' height='90' viewBox='0 0 175 100' fill='none' xmlns='http://www.w3.org/2000/svg'>
                     <text fontSize={12} fontWeight={700} textAnchor='middle' fill='#212121' x={4} y={95}>0</text>
                     <text fontSize={12} fontWeight={700} textAnchor='middle' fill='#212121' x={130} y={95}>{radiusScale.invert(40) > 1 ? format('~s')(radiusScale.invert(40)) : radiusScale.invert(40)}</text>

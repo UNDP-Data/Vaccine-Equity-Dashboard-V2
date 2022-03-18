@@ -157,6 +157,9 @@ export const Tooltip = (props: Props) => {
                 {
                   d.suffix && d.value && d.value !== 'NA' ? ` ${d.suffix}` : ''
                 }
+                {
+                  d.labelExtra && d.value !== 'NA' ? ` (${d.labelExtra})` : ''
+                }
               </RowValue>
             </div>
           </RowEl>

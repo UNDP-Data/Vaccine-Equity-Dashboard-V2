@@ -26,11 +26,7 @@ export const CopyLinkWithParamButton = () => {
     yAxisIndicator,
     colorIndicator,
     sizeIndicator,
-    showMostRecentData,
     showLabel,
-    trendChartCountry,
-    multiCountrytrendChartCountries,
-    useSameRange,
     reverseOrder,
     verticalBarLayout,
   } = useContext(Context) as CtxDataType;
@@ -43,11 +39,7 @@ export const CopyLinkWithParamButton = () => {
   const secondMetricParam = yAxisIndicator ? `&secondMetric=${CovertStringForParam(yAxisIndicator)}` : '';
   const colorMetricParam = `&colorMetric=${CovertStringForParam(colorIndicator)}`;
   const sizeMetricParam = sizeIndicator ? `&sizeMetric=${CovertStringForParam(sizeIndicator)}` : '';
-  const showMostRecentDataParam = showMostRecentData === true ? '&showMostRecentData=true' : '';
   const showLabelParam = showLabel === true ? '&showLabel=true' : '';
-  const trendChartCountryParam = trendChartCountry ? `&trendChartCountry=${CovertStringForParam(trendChartCountry)}` : '';
-  const multiCountrytrendChartCountriesParam = multiCountrytrendChartCountries.length > 0 ? `&multiCountrytrendChartCountries=${ArrToString(multiCountrytrendChartCountries)}` : '';
-  const useSameRangeParam = useSameRange === true ? '&useSameRange=true' : '';
   const reverseOrderParam = reverseOrder === true ? '&reverseOrder=true' : '';
   const verticalBarLayoutParam = verticalBarLayout === false ? '&verticalBarLayout=false' : '';
   const queryParams = graphParam
@@ -59,11 +51,7 @@ export const CopyLinkWithParamButton = () => {
     + secondMetricParam
     + colorMetricParam
     + sizeMetricParam
-    + showMostRecentDataParam
     + showLabelParam
-    + trendChartCountryParam
-    + multiCountrytrendChartCountriesParam
-    + useSameRangeParam
     + reverseOrderParam
     + verticalBarLayoutParam;
   return (

@@ -4,8 +4,6 @@ export default (state: any, action: any) => {
       return { ...state, graphType: action.payload };
     case 'UPDATE_SELECTED_REGIONS':
       return { ...state, selectedRegions: action.payload };
-    case 'UPDATE_YEAR':
-      return { ...state, year: action.payload };
     case 'UPDATE_SELECTED_COUNTRIES':
       return { ...state, selectedCountries: action.payload };
     case 'UPDATE_SELECTED_COUNTRY_GROUP':
@@ -30,8 +28,6 @@ export default (state: any, action: any) => {
       return { ...state, trendChartCountry: action.payload };
     case 'UPDATE_MULTI_COUNTRY_TREND_CHART_COUNTRIES':
       return { ...state, multiCountrytrendChartCountries: action.payload };
-    case 'UPDATE_USE_SAME_RANGE':
-      return { ...state, useSameRange: action.payload };
     case 'UPDATE_REVERSE_ORDER':
       return { ...state, reverseOrder: action.payload };
     case 'UPDATE_BAR_LAYOUT':
