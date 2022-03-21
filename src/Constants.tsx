@@ -4,13 +4,13 @@ export const MAX_TEXT_LENGTH = 100;
 
 export const TRUNCATE_MAX_TEXT_LENGTH = 125;
 
-export const EMBED_LINK_ROOT = 'https://data.undp.org/access-all-data-viz-v2/';
+export const EMBED_LINK_ROOT = 'https://data.undp.org/vaccine-equity-visualization/';
 
-export const PARENT_LINK_ROOT = 'https://data.undp.org/explore-all-data/';
+export const PARENT_LINK_ROOT = 'https://data.undp.org/vaccine-equity/explore-data/';
 
 export const DEFAULT_VALUES = {
-  firstMetric: 'Cases - cumulative total per 100000 population',
-  secondMetric: 'Deaths - cumulative total per 100000 population',
+  firstMetric: 'Secured and/or Expected Vaccine Supply in total courses (% of population)',
+  secondMetric: 'Cost of vaccinating 40% of population as a percent of current health expenditure',
   colorMetric: 'Continents',
 };
 

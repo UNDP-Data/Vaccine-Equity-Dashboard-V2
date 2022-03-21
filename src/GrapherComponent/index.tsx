@@ -120,22 +120,24 @@ const ButtonsEl = styled.div`
 `;
 
 const H1 = styled.div`
-  font-size: 3rem;
+  font-size: 2rem;
   font-weight: bold;
   color: var(--primary-blue);
-  line-height: 2rem;
+  line-height: 2.4rem;
   margin: 1rem 0 0.5rem 1rem;
-  @media (max-width: 600px) {
-    font-size: 2rem;
+  @media (max-width: 960px) {
+    font-size: 1.6rem;
+    line-height: 2rem;
   }
 `;
 const H2 = styled.div`
-  font-size: 2rem;
+  font-size: 1.6rem;
   font-weight: bold;
   line-height: 2rem;
   margin: 0 0 0.5rem 1rem;
-  @media (max-width: 600px) {
-    font-size: 1.6rem;
+  @media (max-width: 960px) {
+    font-size: 1.2rem;
+    line-height: 1.4rem;
   }
 `;
 
@@ -161,7 +163,7 @@ export const GrapherComponent = (props: Props) => {
             <Logo height={50} />
             <div>
               <H1>COVID-19 Vaccine Equity Dashboard</H1>
-              <H2>Tool for exploring equitable distribution of COVID-19 vaccines</H2>
+              <H2>Exploring inequities in the global distribution of COVID-19 vaccines</H2>
             </div>
           </TitleEl>
           <ButtonsEl>

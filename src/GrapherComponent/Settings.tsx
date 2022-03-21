@@ -127,7 +127,7 @@ export const Settings = (props: Props) => {
       : indicators.filter((d) => d.BarGraph && d.Themes === '').map((d) => d.Indicator);
   const sizeOptions = indicators.filter((d) => d.Sizing && d.Themes === '').map((d) => d.Indicator);
   const colorOptions = indicators.filter((d) => d.IsCategorical && d.Themes === '').map((d) => d.Indicator);
-  colorOptions.unshift('Human Development Index');
+  colorOptions.unshift('Human development index (HDI)');
   colorOptions.unshift('Income Groups');
   colorOptions.unshift('Continents');
   const optionsAcc = graphType === 'scatterPlot'
@@ -147,13 +147,18 @@ export const Settings = (props: Props) => {
   const [settingExpanded, setSettingsExpanded] = useState(true);
   const [filterExpanded, setFilterExpanded] = useState(true);
   useEffect(() => {
-    if (options.findIndex((d) => d === xAxisIndicator) === -1) {
+    const opts = graphType === 'scatterPlot'
+      ? indicators.filter((d) => d.ScatterPlot).map((d) => d.Indicator)
+      : graphType === 'map'
+        ? indicators.filter((d) => d.Map).map((d) => d.Indicator)
+        : indicators.filter((d) => d.BarGraph).map((d) => d.Indicator);
+    if (opts.findIndex((d) => d === xAxisIndicator) === -1) {
       updateXAxisIndicator(options[0]);
     }
-    if (options.findIndex((d) => d === yAxisIndicator) === -1 && (graphType === 'scatterPlot')) {
+    if (opts.findIndex((d) => d === yAxisIndicator) === -1 && (graphType === 'scatterPlot')) {
       updateYAxisIndicator(options[0]);
     }
-  }, [graphType, options]);
+  }, [graphType]);
   return (
     <El>
       <DropdownEl>
@@ -177,15 +182,8 @@ export const Settings = (props: Props) => {
           placeholder='Please select'
           value={xAxisIndicator}
           onChange={(d) => { updateXAxisIndicator(d); }}
-          defaultValue={DEFAULT_VALUES.firstMetric}
+          listHeight={400}
         >
-          <Select.OptGroup label='Common'>
-            {
-              options.map((d) => (
-                <Select.Option key={d}>{d}</Select.Option>
-              ))
-            }
-          </Select.OptGroup>
           <Select.OptGroup label='Accessibility'>
             {
               optionsAcc.map((d) => (
@@ -196,6 +194,13 @@ export const Settings = (props: Props) => {
           <Select.OptGroup label='Affordability'>
             {
               optionsAfor.map((d) => (
+                <Select.Option key={d}>{d}</Select.Option>
+              ))
+            }
+          </Select.OptGroup>
+          <Select.OptGroup label='Common'>
+            {
+              options.map((d) => (
                 <Select.Option key={d}>{d}</Select.Option>
               ))
             }
@@ -216,14 +221,8 @@ export const Settings = (props: Props) => {
                 placeholder='Please select'
                 onChange={(d) => { updateYAxisIndicator(d); }}
                 defaultValue={DEFAULT_VALUES.secondMetric}
+                listHeight={400}
               >
-                <Select.OptGroup label='Common'>
-                  {
-                    options.map((d) => (
-                      <Select.Option key={d}>{d}</Select.Option>
-                    ))
-                  }
-                </Select.OptGroup>
                 <Select.OptGroup label='Accessibility'>
                   {
                     optionsAcc.map((d) => (
@@ -234,6 +233,13 @@ export const Settings = (props: Props) => {
                 <Select.OptGroup label='Affordability'>
                   {
                     optionsAfor.map((d) => (
+                      <Select.Option key={d}>{d}</Select.Option>
+                    ))
+                  }
+                </Select.OptGroup>
+                <Select.OptGroup label='Common'>
+                  {
+                    options.map((d) => (
                       <Select.Option key={d}>{d}</Select.Option>
                     ))
                   }
@@ -253,14 +259,8 @@ export const Settings = (props: Props) => {
                 placeholder='Please select'
                 onChange={(d) => { updateYAxisIndicator(d); }}
                 defaultValue={DEFAULT_VALUES.secondMetric}
+                listHeight={400}
               >
-                <Select.OptGroup label='Common'>
-                  {
-                    options.map((d) => (
-                      <Select.Option key={d}>{d}</Select.Option>
-                    ))
-                  }
-                </Select.OptGroup>
                 <Select.OptGroup label='Accessibility'>
                   {
                     optionsAcc.map((d) => (
@@ -271,6 +271,13 @@ export const Settings = (props: Props) => {
                 <Select.OptGroup label='Affordability'>
                   {
                     optionsAfor.map((d) => (
+                      <Select.Option key={d}>{d}</Select.Option>
+                    ))
+                  }
+                </Select.OptGroup>
+                <Select.OptGroup label='Common'>
+                  {
+                    options.map((d) => (
                       <Select.Option key={d}>{d}</Select.Option>
                     ))
                   }
@@ -291,14 +298,8 @@ export const Settings = (props: Props) => {
               style={{ width: '100%' }}
               placeholder='Size By'
               onChange={(d) => { updateSizeIndicator(d); }}
+              listHeight={400}
             >
-              <Select.OptGroup label='Common'>
-                {
-                  sizeOptions.map((d) => (
-                    <Select.Option key={d}>{d}</Select.Option>
-                  ))
-                }
-              </Select.OptGroup>
               <Select.OptGroup label='Accessibility'>
                 {
                   sizeOptionsAcc.map((d) => (
@@ -309,6 +310,13 @@ export const Settings = (props: Props) => {
               <Select.OptGroup label='Affordability'>
                 {
                   sizeOptionsAfor.map((d) => (
+                    <Select.Option key={d}>{d}</Select.Option>
+                  ))
+                }
+              </Select.OptGroup>
+              <Select.OptGroup label='Common'>
+                {
+                  sizeOptions.map((d) => (
                     <Select.Option key={d}>{d}</Select.Option>
                   ))
                 }
@@ -330,11 +338,6 @@ export const Settings = (props: Props) => {
               onChange={(d) => { updateColorIndicator(d); }}
               defaultValue={DEFAULT_VALUES.colorMetric}
             >
-              {
-                colorOptions.map((d) => (
-                  <Select.Option key={d}>{d}</Select.Option>
-                ))
-              }
               <Select.OptGroup label='Accessibility'>
                 {
                   colorOptionsAcc.map((d) => (
@@ -345,6 +348,13 @@ export const Settings = (props: Props) => {
               <Select.OptGroup label='Affordability'>
                 {
                   colorOptionsAfor.map((d) => (
+                    <Select.Option key={d}>{d}</Select.Option>
+                  ))
+                }
+              </Select.OptGroup>
+              <Select.OptGroup label='Common'>
+                {
+                  colorOptions.map((d) => (
                     <Select.Option key={d}>{d}</Select.Option>
                   ))
                 }
@@ -373,50 +383,55 @@ export const Settings = (props: Props) => {
           Download Graph
         </button>
       </ButtonEl>
-      <FiltersEl>
-        <FilterTitle onClick={() => { setSettingsExpanded(!settingExpanded); }}>
-          <AccordionIconEl>
-            {
-              settingExpanded
-                ? <ChevronDown fill='#212121' size={20} /> : <ChevronLeft fill='#212121' size={20} />
-            }
-          </AccordionIconEl>
-          <div style={{ marginTop: '2px' }}>
-            Settings
-            {' '}
-            &
-            {' '}
-            Options
-          </div>
-        </FilterTitle>
-        <div style={{ display: settingExpanded ? 'inline' : 'none' }}>
-          <CheckboxContainer>
-            {
-              graphType === 'scatterPlot'
-                ? (
-                  <CheckboxEl>
-                    <Checkbox checked={showLabel} onChange={(e) => { updateShowLabel(e.target.checked); }}>Show Label</Checkbox>
-                  </CheckboxEl>
-                )
-                : null
-            }
-            {
-              graphType === 'barGraph'
-                ? (
-                  <>
-                    <CheckboxEl>
-                      <Checkbox checked={!verticalBarLayout} onChange={(e) => { updateBarLayout(!e.target.checked); }}>Show Horizontal</Checkbox>
-                    </CheckboxEl>
-                    <CheckboxEl>
-                      <Checkbox disabled={!verticalBarLayout} checked={reverseOrder} onChange={(e) => { updateReverseOrder(e.target.checked); }}>Show Largest First</Checkbox>
-                    </CheckboxEl>
-                  </>
-                )
-                : null
-            }
-          </CheckboxContainer>
-        </div>
-      </FiltersEl>
+      {
+        graphType !== 'map' ? (
+          <FiltersEl>
+            <FilterTitle onClick={() => { setSettingsExpanded(!settingExpanded); }}>
+              <AccordionIconEl>
+                {
+                  settingExpanded
+                    ? <ChevronDown fill='#212121' size={20} /> : <ChevronLeft fill='#212121' size={20} />
+                }
+              </AccordionIconEl>
+              <div style={{ marginTop: '2px' }}>
+                Settings
+                {' '}
+                &
+                {' '}
+                Options
+              </div>
+            </FilterTitle>
+            <div style={{ display: settingExpanded ? 'inline' : 'none' }}>
+              <CheckboxContainer>
+                {
+                  graphType === 'scatterPlot'
+                    ? (
+                      <CheckboxEl>
+                        <Checkbox checked={showLabel} onChange={(e) => { updateShowLabel(e.target.checked); }}>Show Label</Checkbox>
+                      </CheckboxEl>
+                    )
+                    : null
+                }
+                {
+                  graphType === 'barGraph'
+                    ? (
+                      <>
+                        <CheckboxEl>
+                          <Checkbox checked={!verticalBarLayout} onChange={(e) => { updateBarLayout(!e.target.checked); }}>Show Horizontal</Checkbox>
+                        </CheckboxEl>
+                        <CheckboxEl>
+                          <Checkbox disabled={!verticalBarLayout} checked={reverseOrder} onChange={(e) => { updateReverseOrder(e.target.checked); }}>Show Largest First</Checkbox>
+                        </CheckboxEl>
+                      </>
+                    )
+                    : null
+                }
+              </CheckboxContainer>
+            </div>
+          </FiltersEl>
+        )
+          : null
+      }
       <FiltersEl>
         <FilterTitle onClick={() => { setFilterExpanded(!filterExpanded); }}>
           <AccordionIconEl>

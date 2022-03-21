@@ -25,7 +25,7 @@ interface Props {
 }
 
 const El = styled.div`
-  height: calc(100% - 71px);
+  height: 100%;
 `;
 
 export const ScatterPlot = (props: Props) => {
@@ -68,7 +68,7 @@ export const ScatterPlot = (props: Props) => {
     data.map((d) => {
       const xIndicatorIndex = d.data.findIndex((el) => xIndicatorMetaData.DataKey === el.indicator);
       const yIndicatorIndex = d.data.findIndex((el) => yIndicatorMetaData.DataKey === el.indicator);
-      const colorIndicatorIndex = colorIndicator === 'Human Development Index' ? d.data.findIndex((el) => el.indicator === 'Human development index (HDI)') : d.data.findIndex((el) => colorIndicatorMetaData?.DataKey === el.indicator);
+      const colorIndicatorIndex = d.data.findIndex((el) => colorIndicatorMetaData?.DataKey === el.indicator);
       const radiusIndicatorIndex = radiusScale ? d.data.findIndex((el) => sizeIndicatorMetaData?.DataKey === el.indicator) : -1;
       const radiusValue = !radiusScale ? 5 : radiusIndicatorIndex === -1 ? undefined : d.data[radiusIndicatorIndex].value;
       const radiusLabelExtra = !radiusScale || radiusIndicatorIndex === -1 ? undefined : d.data[radiusIndicatorIndex].labelExtra;
@@ -158,11 +158,11 @@ export const ScatterPlot = (props: Props) => {
 
   const colorDomain = colorIndicator === 'Continents' ? CONTINENTS
     : colorIndicator === 'Income Groups' ? INCOME_GROUPS
-      : colorIndicator === 'Human Development Index' ? [0.55, 0.7, 0.8]
+      : colorIndicator === 'Human development index (HDI)' ? [0.55, 0.7, 0.8]
         : colorIndicatorMetaData?.Categories ? colorIndicatorMetaData?.Categories
           : [0, 0];
 
-  const colorScale = colorIndicator === 'Human Development Index' ? scaleThreshold<string | number, string>().domain(colorDomain).range(COLOR_SCALES.Divergent.Color4).unknown('#666') : scaleOrdinal<string | number, string>().domain(colorDomain).range(colorList).unknown('#666');
+  const colorScale = colorIndicator === 'Human development index (HDI)' ? scaleThreshold<string | number, string>().domain(colorDomain).range(COLOR_SCALES.Divergent.Color4).unknown('#666') : scaleOrdinal<string | number, string>().domain(colorDomain).range(colorList).unknown('#666');
 
   return (
     <El>
@@ -179,7 +179,7 @@ export const ScatterPlot = (props: Props) => {
             {colorIndicatorMetaData?.Indicator ? colorIndicatorMetaData?.Indicator : colorIndicator}
           </text>
           {
-            colorIndicator === 'Human Development Index' ? COLOR_SCALES.Divergent.Color4.map((d, i) => (
+            colorIndicator === 'Human development index (HDI)' ? COLOR_SCALES.Divergent.Color4.map((d, i) => (
               <g
                 transform='translate(0,20)'
                 key={i}

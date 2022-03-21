@@ -30,18 +30,6 @@ const El = styled.div<ElProps>`
   }
 `;
 
-const InfoNote = styled.div`
-  padding: 1.8rem 2rem;
-  background-color: var(--black-200);
-  color: var(--primary-blue);
-  box-shadow: var(--shadow-bottom); 
-  height: 6.2rem;
-  font-style: italic;
-  text-align: center;
-  position: sticky;
-  top: 0;
-`;
-
 export const Graph = (props: Props) => {
   const {
     data,
@@ -55,11 +43,6 @@ export const Graph = (props: Props) => {
   } = useContext(Context) as CtxDataType;
   return (
     <El id='graph-node' fullWidth={fullWidth}>
-      <InfoNote>
-        The common year for the data selected is
-        {' '}
-        {2020}
-      </InfoNote>
       {
         graphType === 'scatterPlot'
           ? yAxisIndicator

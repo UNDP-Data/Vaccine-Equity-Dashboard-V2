@@ -24,7 +24,7 @@ interface Props {
 }
 
 const El = styled.div`
-  height: calc(100% - 72px);
+  height: calc(100% - 10px);
 `;
 
 const LegendEl = styled.div`
@@ -267,11 +267,9 @@ export const BivariateMap = (props: Props) => {
                 <g
                   key={i}
                   opacity={
-                    !hoverData
-                      ? selectedColor
-                        ? selectedColor === color ? 1 : 0.1
-                        : regionOpacity && incomeGroupOpacity && countryOpacity && countryGroupOpacity ? 1 : 0.1
-                      : hoverData.country === d['Country or Area'] ? 1 : 0.1
+                    selectedColor
+                      ? selectedColor === color ? 1 : 0.1
+                      : regionOpacity && incomeGroupOpacity && countryOpacity && countryGroupOpacity ? 1 : 0.1
                   }
                   onMouseEnter={(event) => {
                     setHoverData({
