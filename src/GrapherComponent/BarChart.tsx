@@ -25,6 +25,7 @@ interface Props {
 
 const El = styled.div`
   height: 100%;
+  overflow-y: hidden;
 `;
 
 export const BarChart = (props: Props) => {

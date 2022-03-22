@@ -25,6 +25,7 @@ interface Props {
 
 const El = styled.div`
   height: calc(100% - 10px);
+  overflow-y: hidden;
 `;
 
 const LegendEl = styled.div`
@@ -223,7 +224,7 @@ export const BivariateMap = (props: Props) => {
               const xColorCoord = xVal !== undefined ? xScale(xIndicatorMetaData.IsCategorical ? Math.floor(xVal) : xVal) : undefined;
               const yColorCoord = yVal !== undefined ? yScale(yIndicatorMetaData.IsCategorical ? Math.floor(yVal) : yVal) : undefined;
 
-              const color = xColorCoord !== undefined && yColorCoord !== undefined ? COLOR_SCALES.Bivariate[xColorCoord][yColorCoord] : COLOR_SCALES.Null;
+              const color = xColorCoord !== undefined && yColorCoord !== undefined ? COLOR_SCALES.Bivariate[yColorCoord][xColorCoord] : COLOR_SCALES.Null;
 
               const regionOpacity = selectedRegions.length === 0 || selectedRegions.indexOf(d['Group 2']) !== -1;
               const incomeGroupOpacity = selectedIncomeGroups.length === 0 || selectedIncomeGroups.indexOf(d['Income group']) !== -1;
@@ -311,7 +312,7 @@ export const BivariateMap = (props: Props) => {
                             key={j}
                             d={masterPath}
                             stroke={hoverData?.country === d['Country or Area'] ? '#212121' : '#ccc'}
-                            strokeWidth={hoverData?.country === d['Country or Area'] ? 1 : 0.25}
+                            strokeWidth={hoverData?.country === d['Country or Area'] ? 1 : 0.5}
                             fill={color}
                           />
                         );
@@ -327,7 +328,7 @@ export const BivariateMap = (props: Props) => {
                             key={j}
                             d={path}
                             stroke={hoverData?.country === d['Country or Area'] ? '#212121' : '#ccc'}
-                            strokeWidth={hoverData?.country === d['Country or Area'] ? 1 : 0.25}
+                            strokeWidth={hoverData?.country === d['Country or Area'] ? 1 : 0.5}
                             fill={color}
                           />
                         );
@@ -352,7 +353,7 @@ export const BivariateMap = (props: Props) => {
                     const xColorCoord = xVal !== undefined ? xScale(xIndicatorMetaData.IsCategorical ? Math.floor(xVal) : xVal) : undefined;
                     const yColorCoord = yVal !== undefined ? yScale(yIndicatorMetaData.IsCategorical ? Math.floor(yVal) : yVal) : undefined;
 
-                    const color = xColorCoord !== undefined && yColorCoord !== undefined ? COLOR_SCALES.Bivariate[xColorCoord][yColorCoord] : COLOR_SCALES.Null;
+                    const color = xColorCoord !== undefined && yColorCoord !== undefined ? COLOR_SCALES.Bivariate[yColorCoord][xColorCoord] : COLOR_SCALES.Null;
 
                     const regionOpacity = selectedRegions.length === 0 || selectedRegions.indexOf(d['Group 2']) !== -1;
                     const incomeGroupOpacity = selectedIncomeGroups.length === 0 || selectedIncomeGroups.indexOf(d['Income group']) !== -1;
@@ -417,11 +418,9 @@ export const BivariateMap = (props: Props) => {
                         strokeWidth={1}
                         fill='none'
                         opacity={
-                          !hoverData
-                            ? selectedColor
-                              ? selectedColor === color ? 1 : 0.1
-                              : regionOpacity && incomeGroupOpacity && countryOpacity && countryGroupOpacity ? 1 : 0.1
-                            : hoverData.country === d['Country or Area'] ? 1 : 0.1
+                          selectedColor
+                            ? selectedColor === color ? 1 : 0.1
+                            : regionOpacity && incomeGroupOpacity && countryOpacity && countryGroupOpacity ? 1 : 0.1
                         }
                       />
                     );

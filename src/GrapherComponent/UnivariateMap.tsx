@@ -23,6 +23,7 @@ interface Props {
 
 const El = styled.div`
   height: 100%;
+  overflow-y: hidden;
 `;
 
 const LegendEl = styled.div`
@@ -230,7 +231,7 @@ export const UnivariateMap = (props: Props) => {
                             key={j}
                             d={masterPath}
                             stroke={hoverData?.country === d['Country or Area'] ? '#212121' : '#fff'}
-                            strokeWidth={hoverData?.country === d['Country or Area'] ? 0.5 : 0.25}
+                            strokeWidth={hoverData?.country === d['Country or Area'] ? 1 : 0.5}
                             fill={color}
                           />
                         );
@@ -246,7 +247,7 @@ export const UnivariateMap = (props: Props) => {
                             key={j}
                             d={path}
                             stroke={hoverData?.country === d['Country or Area'] ? '#212121' : '#fff'}
-                            strokeWidth={hoverData?.country === d['Country or Area'] ? 0.5 : 0.25}
+                            strokeWidth={hoverData?.country === d['Country or Area'] ? 1 : 0.5}
                             fill={color}
                           />
                         );
@@ -327,11 +328,9 @@ export const UnivariateMap = (props: Props) => {
                         strokeWidth={1}
                         fill='none'
                         opacity={
-                          !hoverData
-                            ? selectedColor
-                              ? selectedColor === color ? 1 : 0.1
-                              : regionOpacity && incomeGroupOpacity && countryOpacity && countryGroupOpacity ? 1 : 0.1
-                            : hoverData.country === d['Country or Area'] ? 1 : 0.1
+                          selectedColor
+                            ? selectedColor === color ? 1 : 0.1
+                            : regionOpacity && incomeGroupOpacity && countryOpacity && countryGroupOpacity ? 1 : 0.1
                         }
                       />
                     );

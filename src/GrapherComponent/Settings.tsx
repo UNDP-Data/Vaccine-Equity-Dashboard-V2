@@ -366,8 +366,9 @@ export const Settings = (props: Props) => {
       <ButtonEl>
         <button className='primary' type='button' onClick={() => { updateShowSource(true); }}>Data Description & Download</button>
         <button
-          className='primary'
+          className={graphType === 'barGraph' && verticalBarLayout ? 'disabled primary' : 'primary'}
           type='button'
+          disabled={!(graphType === 'barGraph' && verticalBarLayout)}
           onClick={() => {
             // tslint:disable-next-line: no-floating-promises
             domtoimage

@@ -5,6 +5,7 @@ import { json, csv } from 'd3-request';
 import uniqBy from 'lodash.uniqby';
 import { queue } from 'd3-queue';
 import { Spin } from 'antd';
+import { timeParse } from 'd3-time-format';
 import 'antd/dist/antd.css';
 import { DataType, CountryGroupDataType, IndicatorMetaDataType } from './Types';
 import { GrapherComponent } from './GrapherComponent';
@@ -119,6 +120,11 @@ const GlobalStyle = createGlobalStyle`
       border: 1px solid var(--primary-blue) !important;
       color: var(--primary-blue) !important;
     }
+  }
+
+  button.disabled {
+    opacity: 0.3 !important;
+    cursor: not-allowed !important;  
   }
 
   a:hover {
@@ -313,11 +319,12 @@ const App = () => {
       .defer(json, 'https://raw.githubusercontent.com/UNDP-Data/Country-Taxonomy/main/country-territory-groups.json')
       .await((err: any, data: any[], indicatorMetaData: IndicatorMetaDataType[], countryGroupData: CountryGroupDataType[]) => {
         if (err) throw err;
+        const parseTime = timeParse('%d%b%Y');
         const dataFormatted = data.filter((d) => countryGroupData.findIndex((country) => country['Alpha-3 code-1'] === d.iso3) !== -1).map((d: any) => {
           const countryData = countryGroupData[countryGroupData.findIndex((country) => country['Alpha-3 code-1'] === d.iso3)];
           const indicatorData = indicatorMetaData.map((indicator) => ({
             indicator: indicator.DataKey,
-            value: d[indicator.DataKey] === '' ? undefined : indicator.DataKey === 'first_vaccine_date' ? Math.floor((new Date().getTime() - new Date(Date.parse(`${d[indicator.DataKey]}GMT`)).getTime()) / (24 * 3600 * 1000)) : +d[indicator.DataKey],
+            value: d[indicator.DataKey] === '' ? undefined : indicator.DataKey === 'first_vaccine_date' ? Math.floor((new Date().getTime() - (parseTime(d[indicator.DataKey]) as Date).getTime()) / (24 * 3600 * 1000)) : +d[indicator.DataKey],
             labelExtra: d[indicator.DataKey] === '' ? undefined : indicator.DataKey === 'first_vaccine_date' ? d[indicator.DataKey] : indicator.LabelExtra ? d[indicator.LabelExtra] : undefined,
           }));
           return { ...countryData, data: indicatorData };
