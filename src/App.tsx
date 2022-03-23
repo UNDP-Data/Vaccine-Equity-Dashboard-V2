@@ -314,8 +314,8 @@ const App = () => {
 
   useEffect(() => {
     queue()
-      .defer(csv, './data/Data.csv')
-      .defer(json, './data/indicatorMetaData.json')
+      .defer(csv, 'https://raw.githubusercontent.com/UNDP-Data/Vaccine-Equity-Dashboard-Data/main/Data.csv')
+      .defer(json, 'https://raw.githubusercontent.com/UNDP-Data/Vaccine-Equity-Dashboard-Indicator-Metadata/main/indicatorMetaData.json')
       .defer(json, 'https://raw.githubusercontent.com/UNDP-Data/Country-Taxonomy/main/country-territory-groups.json')
       .await((err: any, data: any[], indicatorMetaData: IndicatorMetaDataType[], countryGroupData: CountryGroupDataType[]) => {
         if (err) throw err;
