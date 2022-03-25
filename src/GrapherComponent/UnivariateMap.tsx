@@ -49,6 +49,10 @@ const TitleEl = styled.div`
   text-overflow: ellipsis;
 `;
 
+const G = styled.g`
+  pointer-events: none;
+`;
+
 export const UnivariateMap = (props: Props) => {
   const {
     data,
@@ -69,7 +73,7 @@ export const UnivariateMap = (props: Props) => {
   const svgHeight = 678;
   const mapSvg = useRef<SVGSVGElement>(null);
   const mapG = useRef<SVGGElement>(null);
-  const projection = geoEqualEarth().rotate([0, 0]).scale(200).translate([450, 350]);
+  const projection = geoEqualEarth().rotate([0, 0]).scale(180).translate([465, 315]);
   const xIndicatorMetaData = indicators[indicators.findIndex((indicator) => indicator.Indicator === xAxisIndicator)];
   const sizeIndicatorMetaData = indicators[indicators.findIndex((indicator) => indicator.Indicator === sizeIndicator)];
   const valueArray = xIndicatorMetaData.IsCategorical ? xIndicatorMetaData.Categories : xIndicatorMetaData.BinningRangeLarge.length === 0 ? xIndicatorMetaData.BinningRange5 : xIndicatorMetaData.BinningRangeLarge;
@@ -82,8 +86,8 @@ export const UnivariateMap = (props: Props) => {
     const mapGSelect = select(mapG.current);
     const mapSvgSelect = select(mapSvg.current);
     const zoomBehaviour = zoom()
-      .scaleExtent([1, 3])
-      .translateExtent([[0, 0], [svgWidth, svgHeight]])
+      .scaleExtent([1, 6])
+      .translateExtent([[-20, 0], [svgWidth + 20, svgHeight]])
       .on('zoom', ({ transform }) => {
         mapGSelect.attr('transform', transform);
       });
@@ -94,58 +98,6 @@ export const UnivariateMap = (props: Props) => {
     <El>
       <svg width='100%' height='100%' viewBox={`0 0 ${svgWidth} ${svgHeight}`} ref={mapSvg}>
         <g ref={mapG}>
-          {
-            (World as any).features.map((d: any, i: number) => {
-              const index = data.findIndex((el: any) => el['Alpha-3 code-1'] === d.properties.ISO3);
-              if ((index !== -1) || d.properties.NAME === 'Antarctica') return null;
-              return (
-                <g
-                  key={i}
-                  opacity={!selectedColor ? 1 : 0.3}
-                >
-                  {
-                  d.geometry.type === 'MultiPolygon' ? d.geometry.coordinates.map((el:any, j: any) => {
-                    let masterPath = '';
-                    el.forEach((geo: number[][]) => {
-                      let path = ' M';
-                      geo.forEach((c: number[], k: number) => {
-                        const point = projection([c[0], c[1]]) as [number, number];
-                        if (k !== geo.length - 1) path = `${path}${point[0]} ${point[1]}L`;
-                        else path = `${path}${point[0]} ${point[1]}`;
-                      });
-                      masterPath += path;
-                    });
-                    return (
-                      <path
-                        key={j}
-                        d={masterPath}
-                        stroke='#fff'
-                        strokeWidth={0.25}
-                        fill={COLOR_SCALES.Null}
-                      />
-                    );
-                  }) : d.geometry.coordinates.map((el:any, j: number) => {
-                    let path = 'M';
-                    el.forEach((c: number[], k: number) => {
-                      const point = projection([c[0], c[1]]) as [number, number];
-                      if (k !== el.length - 1) path = `${path}${point[0]} ${point[1]}L`;
-                      else path = `${path}${point[0]} ${point[1]}`;
-                    });
-                    return (
-                      <path
-                        key={j}
-                        d={path}
-                        stroke='#fff'
-                        strokeWidth={0.25}
-                        fill={COLOR_SCALES.Null}
-                      />
-                    );
-                  })
-                }
-                </g>
-              );
-            })
-          }
           {
             data.map((d, i: number) => {
               const index = (World as any).features.findIndex((el: any) => d['Alpha-3 code-1'] === el.properties.ISO3);
@@ -230,8 +182,8 @@ export const UnivariateMap = (props: Props) => {
                           <path
                             key={j}
                             d={masterPath}
-                            stroke={hoverData?.country === d['Country or Area'] ? '#212121' : '#fff'}
-                            strokeWidth={hoverData?.country === d['Country or Area'] ? 1 : 0.5}
+                            stroke='#fff'
+                            strokeWidth={0.25}
                             fill={color}
                           />
                         );
@@ -246,8 +198,8 @@ export const UnivariateMap = (props: Props) => {
                           <path
                             key={j}
                             d={path}
-                            stroke={hoverData?.country === d['Country or Area'] ? '#212121' : '#fff'}
-                            strokeWidth={hoverData?.country === d['Country or Area'] ? 1 : 0.5}
+                            stroke='#fff'
+                            strokeWidth={0.25}
                             fill={color}
                           />
                         );
@@ -256,6 +208,110 @@ export const UnivariateMap = (props: Props) => {
                 </g>
               );
             })
+          }
+          {
+            (World as any).features.map((d: any, i: number) => {
+              const index = data.findIndex((el: any) => el['Alpha-3 code-1'] === d.properties.ISO3);
+              if ((index !== -1) || d.properties.NAME === 'Antarctica') return null;
+              return (
+                <g
+                  key={i}
+                  opacity={!selectedColor ? 1 : 0.3}
+                >
+                  {
+                    d.geometry.type === 'MultiPolygon' ? d.geometry.coordinates.map((el:any, j: any) => {
+                      let masterPath = '';
+                      el.forEach((geo: number[][]) => {
+                        let path = ' M';
+                        geo.forEach((c: number[], k: number) => {
+                          const point = projection([c[0], c[1]]) as [number, number];
+                          if (k !== geo.length - 1) path = `${path}${point[0]} ${point[1]}L`;
+                          else path = `${path}${point[0]} ${point[1]}`;
+                        });
+                        masterPath += path;
+                      });
+                      return (
+                        <path
+                          key={j}
+                          d={masterPath}
+                          stroke='#fff'
+                          strokeWidth={0.25}
+                          fill={COLOR_SCALES.Null}
+                        />
+                      );
+                    }) : d.geometry.coordinates.map((el:any, j: number) => {
+                      let path = 'M';
+                      el.forEach((c: number[], k: number) => {
+                        const point = projection([c[0], c[1]]) as [number, number];
+                        if (k !== el.length - 1) path = `${path}${point[0]} ${point[1]}L`;
+                        else path = `${path}${point[0]} ${point[1]}`;
+                      });
+                      return (
+                        <path
+                          key={j}
+                          d={path}
+                          stroke='#fff'
+                          strokeWidth={0.25}
+                          fill={COLOR_SCALES.Null}
+                        />
+                      );
+                    })
+                  }
+                </g>
+              );
+            })
+          }
+          {
+            hoverData
+              ? (World as any).features.filter((d: any) => d.properties.ISO3 === data[data.findIndex((el: DataType) => el['Country or Area'] === hoverData?.country)]['Alpha-3 code-1']).map((d: any) => (
+                <G
+                  opacity={!selectedColor ? 1 : 0}
+                >
+                  {
+                    d.geometry.type === 'MultiPolygon' ? d.geometry.coordinates.map((el:any, j: any) => {
+                      let masterPath = '';
+                      el.forEach((geo: number[][]) => {
+                        let path = ' M';
+                        geo.forEach((c: number[], k: number) => {
+                          const point = projection([c[0], c[1]]) as [number, number];
+                          if (k !== geo.length - 1) path = `${path}${point[0]} ${point[1]}L`;
+                          else path = `${path}${point[0]} ${point[1]}`;
+                        });
+                        masterPath += path;
+                      });
+                      return (
+                        <path
+                          key={j}
+                          d={masterPath}
+                          stroke='#212121'
+                          opacity={1}
+                          strokeWidth={1}
+                          fillOpacity={0}
+                          fill={COLOR_SCALES.Null}
+                        />
+                      );
+                    }) : d.geometry.coordinates.map((el:any, j: number) => {
+                      let path = 'M';
+                      el.forEach((c: number[], k: number) => {
+                        const point = projection([c[0], c[1]]) as [number, number];
+                        if (k !== el.length - 1) path = `${path}${point[0]} ${point[1]}L`;
+                        else path = `${path}${point[0]} ${point[1]}`;
+                      });
+                      return (
+                        <path
+                          key={j}
+                          d={path}
+                          stroke='#212121'
+                          opacity={1}
+                          strokeWidth={1}
+                          fillOpacity={0}
+                          fill='none'
+                        />
+                      );
+                    })
+                  }
+                </G>
+              )) : null
           }
           {
             sizeIndicatorMetaData ? (
@@ -328,9 +384,10 @@ export const UnivariateMap = (props: Props) => {
                         strokeWidth={1}
                         fill='none'
                         opacity={
-                          selectedColor
-                            ? selectedColor === color ? 1 : 0.1
-                            : regionOpacity && incomeGroupOpacity && countryOpacity && countryGroupOpacity ? 1 : 0.1
+                          hoverData ? hoverData.country === d['Country or Area'] ? 1 : 0.1
+                            : selectedColor
+                              ? selectedColor === color ? 1 : 0.1
+                              : regionOpacity && incomeGroupOpacity && countryOpacity && countryGroupOpacity ? 1 : 0.1
                         }
                       />
                     );
