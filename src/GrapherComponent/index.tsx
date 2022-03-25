@@ -1,7 +1,9 @@
 import { useContext, useState } from 'react';
 import styled from 'styled-components';
 import { Modal } from 'antd';
-import { CtxDataType, DataType, IndicatorMetaDataType } from '../Types';
+import {
+  CtxDataType, DataType, IndicatorMetaDataType, LastUpdatedDataType,
+} from '../Types';
 import {
   ScatterPlotIcon, BarGraphIcon, MapIcon, Logo,
 } from '../Icons';
@@ -17,6 +19,7 @@ interface Props {
   indicators: IndicatorMetaDataType[];
   regions: string[];
   countries: string[];
+  lastUpdated: LastUpdatedDataType[];
 }
 
 const Container = styled.div`
@@ -147,6 +150,7 @@ export const GrapherComponent = (props: Props) => {
     indicators,
     regions,
     countries,
+    lastUpdated,
   } = props;
   const {
     graphType,
@@ -223,6 +227,7 @@ export const GrapherComponent = (props: Props) => {
                 <DataSources
                   indicators={indicators}
                   data={data}
+                  lastUpdated={lastUpdated}
                 />
               )
               : (

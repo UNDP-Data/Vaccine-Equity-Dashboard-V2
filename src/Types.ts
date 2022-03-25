@@ -108,3 +108,8 @@ export interface CtxDataType {
   updateReverseOrder: (_d: boolean) => void;
   updateBarLayout: (_d: boolean) => void;
 }
+
+export interface LastUpdatedDataType {
+  Source: string;
+  Date: string;
+}

@@ -7,7 +7,9 @@ import { queue } from 'd3-queue';
 import { Spin } from 'antd';
 import { timeParse } from 'd3-time-format';
 import 'antd/dist/antd.css';
-import { DataType, CountryGroupDataType, IndicatorMetaDataType } from './Types';
+import {
+  DataType, CountryGroupDataType, IndicatorMetaDataType, LastUpdatedDataType,
+} from './Types';
 import { GrapherComponent } from './GrapherComponent';
 import Reducer from './Context/Reducer';
 import Context from './Context/Context';
@@ -195,6 +197,7 @@ const App = () => {
   const [indicatorsList, setIndicatorsList] = useState<IndicatorMetaDataType[] | undefined>(undefined);
   const [regionList, setRegionList] = useState<string[] | undefined>(undefined);
   const [countryList, setCountryList] = useState<string[] | undefined>(undefined);
+  const [lastUpdated, setLastUpdated] = useState<LastUpdatedDataType[] | undefined>(undefined);
   const queryParams = new URLSearchParams(window.location.search);
   const initialState = {
     graphType: queryParams.get('graphType') || 'map',
@@ -317,7 +320,8 @@ const App = () => {
       .defer(csv, 'https://raw.githubusercontent.com/UNDP-Data/Vaccine-Equity-Dashboard-Data/main/Data.csv')
       .defer(json, 'https://raw.githubusercontent.com/UNDP-Data/Vaccine-Equity-Dashboard-Indicator-Metadata/main/indicatorMetaData.json')
       .defer(json, 'https://raw.githubusercontent.com/UNDP-Data/Country-Taxonomy/main/country-territory-groups.json')
-      .await((err: any, data: any[], indicatorMetaData: IndicatorMetaDataType[], countryGroupData: CountryGroupDataType[]) => {
+      .defer(csv, 'https://raw.githubusercontent.com/UNDP-Data/Vaccine-Equity-Dashboard-Indicator-Metadata/main/last-updated.csv')
+      .await((err: any, data: any[], indicatorMetaData: IndicatorMetaDataType[], countryGroupData: CountryGroupDataType[], lastUpdate: LastUpdatedDataType[]) => {
         if (err) throw err;
         const parseTime = timeParse('%d%b%Y');
         const dataFormatted = data.filter((d) => countryGroupData.findIndex((country) => country['Alpha-3 code-1'] === d.iso3) !== -1).map((d: any) => {
@@ -333,13 +337,14 @@ const App = () => {
         setCountryList(dataFormatted.map((d) => d['Country or Area']));
         setRegionList(uniqBy(dataFormatted, (d) => d['Group 2']).map((d) => d['Group 2']));
         setIndicatorsList(indicatorMetaData);
+        setLastUpdated(lastUpdate);
       });
   }, []);
   return (
     <>
       <GlobalStyle />
       {
-        indicatorsList && finalData && regionList && countryList
+        indicatorsList && finalData && regionList && countryList && lastUpdated
           ? (
             <>
               <Context.Provider
@@ -366,6 +371,7 @@ const App = () => {
                   indicators={indicatorsList}
                   regions={regionList}
                   countries={countryList}
+                  lastUpdated={lastUpdated}
                 />
               </Context.Provider>
             </>

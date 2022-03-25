@@ -1,12 +1,15 @@
 import { useContext } from 'react';
 import styled from 'styled-components';
 import { CSVLink } from 'react-csv';
-import { CtxDataType, DataType, IndicatorMetaDataType } from '../Types';
+import {
+  CtxDataType, DataType, IndicatorMetaDataType, LastUpdatedDataType,
+} from '../Types';
 import Context from '../Context/Context';
 
 interface Props {
   indicators: IndicatorMetaDataType[];
   data: DataType[];
+  lastUpdated: LastUpdatedDataType[];
 }
 
 const El = styled.div`
@@ -53,12 +56,6 @@ const HeaderEl = styled.div`
   top: 0;
 `;
 
-const YearEl = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  margin-left: -0.5rem;
-`;
-
 const DownloadButton = styled.div`
   border-radius: 0.2rem;
   font-size: 1.4rem;
@@ -103,6 +100,7 @@ export const DataSources = (props: Props) => {
   const {
     indicators,
     data,
+    lastUpdated,
   } = props;
   const {
     graphType,
@@ -112,7 +110,6 @@ export const DataSources = (props: Props) => {
     colorIndicator,
     updateShowSource,
   } = useContext(Context) as CtxDataType;
-
   const xIndicatorMetaData = indicators[indicators.findIndex((d) => d.Indicator === xAxisIndicator)];
 
   const yIndicatorMetaData = indicators[indicators.findIndex((d) => d.Indicator === yAxisIndicator)];
@@ -135,12 +132,21 @@ export const DataSources = (props: Props) => {
         <div>{xIndicatorMetaData.IndicatorDescription}</div>
       </RowEl>
       <RowEl>
-        <FirstColumn>Last Updated</FirstColumn>
-        <YearEl>01-Jan-2020</YearEl>
-      </RowEl>
-      <RowEl>
         <FirstColumn>Data By</FirstColumn>
-        <div>{xIndicatorMetaData.DataSourceName}</div>
+        <div>
+          {
+            xIndicatorMetaData.DataSourceName.split(';').map((d, i) => (
+              <div key={i}>
+                {d}
+                {' '}
+                (last updated:
+                {' '}
+                {lastUpdated.findIndex((el) => el.Source === d) !== -1 ? lastUpdated[lastUpdated.findIndex((el) => el.Source === d)].Date : null}
+                )
+              </div>
+            ))
+          }
+        </div>
       </RowEl>
       <RowEl>
         <FirstColumn>Data Link</FirstColumn>
@@ -168,7 +174,6 @@ export const DataSources = (props: Props) => {
             [
               { label: 'Country or Area', key: 'country' },
               { label: 'Alpha-3 code-1', key: 'countryCode' },
-              { label: 'Year', key: 'year' },
               { label: xIndicatorMetaData.Indicator, key: 'value' },
             ]
           }
@@ -194,12 +199,21 @@ export const DataSources = (props: Props) => {
               <div>{yIndicatorMetaData.IndicatorDescription}</div>
             </RowEl>
             <RowEl>
-              <FirstColumn>Last Updated</FirstColumn>
-              <YearEl>01-Jan-2020</YearEl>
-            </RowEl>
-            <RowEl>
               <FirstColumn>Data By</FirstColumn>
-              <div>{yIndicatorMetaData.DataSourceName}</div>
+              <div>
+                {
+                  yIndicatorMetaData.DataSourceName.split(';').map((d, i) => (
+                    <div key={i}>
+                      {d}
+                      {' '}
+                      (last updated:
+                      {' '}
+                      {lastUpdated.findIndex((el) => el.Source === d) !== -1 ? lastUpdated[lastUpdated.findIndex((el) => el.Source === d)].Date : null}
+                      )
+                    </div>
+                  ))
+                }
+              </div>
             </RowEl>
             <RowEl>
               <FirstColumn>Data Link</FirstColumn>
@@ -227,7 +241,6 @@ export const DataSources = (props: Props) => {
                   [
                     { label: 'Country or Area', key: 'country' },
                     { label: 'Alpha-3 code-1', key: 'countryCode' },
-                    { label: 'Year', key: 'year' },
                     { label: yIndicatorMetaData.Indicator, key: 'value' },
                   ]
                 }
@@ -256,12 +269,21 @@ export const DataSources = (props: Props) => {
               <div>{colorIndicatorMetaData.IndicatorDescription}</div>
             </RowEl>
             <RowEl>
-              <FirstColumn>Last Updated</FirstColumn>
-              <YearEl>01-Jan-2020</YearEl>
-            </RowEl>
-            <RowEl>
               <FirstColumn>Data By</FirstColumn>
-              <div>{colorIndicatorMetaData.DataSourceName}</div>
+              <div>
+                {
+                  colorIndicatorMetaData.DataSourceName.split(';').map((d, i) => (
+                    <div key={i}>
+                      {d}
+                      {' '}
+                      (last Updated:
+                      {' '}
+                      {lastUpdated.findIndex((el) => el.Source === d) !== -1 ? lastUpdated[lastUpdated.findIndex((el) => el.Source === d)].Date : null}
+                      )
+                    </div>
+                  ))
+                }
+              </div>
             </RowEl>
             <RowEl>
               <FirstColumn>Data Link</FirstColumn>
@@ -289,7 +311,6 @@ export const DataSources = (props: Props) => {
                   [
                     { label: 'Country or Area', key: 'country' },
                     { label: 'Alpha-3 code-1', key: 'countryCode' },
-                    { label: 'Year', key: 'year' },
                     { label: colorIndicatorMetaData.Indicator, key: 'value' },
                   ]
                 }
@@ -318,12 +339,21 @@ export const DataSources = (props: Props) => {
               <div>{sizeIndicatorMetaData.IndicatorDescription}</div>
             </RowEl>
             <RowEl>
-              <FirstColumn>Last Updated</FirstColumn>
-              <YearEl>01-Jan-2020</YearEl>
-            </RowEl>
-            <RowEl>
               <FirstColumn>Data By</FirstColumn>
-              <div>{sizeIndicatorMetaData.DataSourceName}</div>
+              <div>
+                {
+                  sizeIndicatorMetaData.DataSourceName.split(';').map((d, i) => (
+                    <div key={i}>
+                      {d}
+                      {' '}
+                      (last Updated:
+                      {' '}
+                      {lastUpdated.findIndex((el) => el.Source === d) !== -1 ? lastUpdated[lastUpdated.findIndex((el) => el.Source === d)].Date : null}
+                      )
+                    </div>
+                  ))
+                }
+              </div>
             </RowEl>
             <RowEl>
               <FirstColumn>Data Link</FirstColumn>
@@ -351,7 +381,6 @@ export const DataSources = (props: Props) => {
                   [
                     { label: 'Country or Area', key: 'country' },
                     { label: 'Alpha-3 code-1', key: 'countryCode' },
-                    { label: 'Year', key: 'year' },
                     { label: sizeIndicatorMetaData.Indicator, key: 'value' },
                   ]
                 }
