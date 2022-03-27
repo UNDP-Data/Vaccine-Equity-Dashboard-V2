@@ -116,7 +116,7 @@ export const BivariateMap = (props: Props) => {
   const svgHeight = 678;
   const mapSvg = useRef<SVGSVGElement>(null);
   const mapG = useRef<SVGGElement>(null);
-  const projection = geoEqualEarth().rotate([0, 0]).scale(180).translate([465, 315]);
+  const projection = geoEqualEarth().rotate([0, 0]).scale(180).translate([470, 315]);
   const xIndicatorMetaData = indicators[indicators.findIndex((indicator) => indicator.Indicator === xAxisIndicator)];
   const yIndicatorMetaData = indicators[indicators.findIndex((indicator) => indicator.Indicator === yAxisIndicator)];
 
@@ -191,7 +191,7 @@ export const BivariateMap = (props: Props) => {
                       <path
                         key={j}
                         d={masterPath}
-                        stroke='#fff'
+                        stroke='#AAA'
                         strokeWidth={0.25}
                         fill={COLOR_SCALES.Null}
                       />
@@ -207,7 +207,7 @@ export const BivariateMap = (props: Props) => {
                       <path
                         key={j}
                         d={path}
-                        stroke='#fff'
+                        stroke='#AAA'
                         strokeWidth={0.25}
                         fill={COLOR_SCALES.Null}
                       />
@@ -315,7 +315,7 @@ export const BivariateMap = (props: Props) => {
                           <path
                             key={j}
                             d={masterPath}
-                            stroke='#fff'
+                            stroke={color === COLOR_SCALES.Null ? '#AAA' : '#FFF'}
                             strokeWidth={0.25}
                             fill={color}
                           />
@@ -331,7 +331,7 @@ export const BivariateMap = (props: Props) => {
                           <path
                             key={j}
                             d={path}
-                            stroke='#fff'
+                            stroke={color === COLOR_SCALES.Null ? '#AAA' : '#FFF'}
                             strokeWidth={0.25}
                             fill={color}
                           />

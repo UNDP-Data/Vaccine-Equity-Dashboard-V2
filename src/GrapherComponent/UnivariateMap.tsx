@@ -73,7 +73,7 @@ export const UnivariateMap = (props: Props) => {
   const svgHeight = 678;
   const mapSvg = useRef<SVGSVGElement>(null);
   const mapG = useRef<SVGGElement>(null);
-  const projection = geoEqualEarth().rotate([0, 0]).scale(180).translate([465, 315]);
+  const projection = geoEqualEarth().rotate([0, 0]).scale(180).translate([470, 315]);
   const xIndicatorMetaData = indicators[indicators.findIndex((indicator) => indicator.Indicator === xAxisIndicator)];
   const sizeIndicatorMetaData = indicators[indicators.findIndex((indicator) => indicator.Indicator === sizeIndicator)];
   const valueArray = xIndicatorMetaData.IsCategorical ? xIndicatorMetaData.Categories : xIndicatorMetaData.BinningRangeLarge.length === 0 ? xIndicatorMetaData.BinningRange5 : xIndicatorMetaData.BinningRangeLarge;
@@ -182,7 +182,7 @@ export const UnivariateMap = (props: Props) => {
                           <path
                             key={j}
                             d={masterPath}
-                            stroke='#fff'
+                            stroke={color === COLOR_SCALES.Null ? '#AAA' : '#FFF'}
                             strokeWidth={0.25}
                             fill={color}
                           />
@@ -198,7 +198,7 @@ export const UnivariateMap = (props: Props) => {
                           <path
                             key={j}
                             d={path}
-                            stroke='#fff'
+                            stroke={color === COLOR_SCALES.Null ? '#AAA' : '#FFF'}
                             strokeWidth={0.25}
                             fill={color}
                           />
@@ -234,7 +234,7 @@ export const UnivariateMap = (props: Props) => {
                         <path
                           key={j}
                           d={masterPath}
-                          stroke='#fff'
+                          stroke='#AAA'
                           strokeWidth={0.25}
                           fill={COLOR_SCALES.Null}
                         />
@@ -250,7 +250,7 @@ export const UnivariateMap = (props: Props) => {
                         <path
                           key={j}
                           d={path}
-                          stroke='#fff'
+                          stroke='#AAA'
                           strokeWidth={0.25}
                           fill={COLOR_SCALES.Null}
                         />

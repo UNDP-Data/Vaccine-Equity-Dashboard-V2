@@ -19,7 +19,7 @@ export const INCOME_GROUPS = ['Low income', 'Lower middle income', 'Upper middle
 export const HDI_LEVELS = ['Low', 'Medium', 'High', 'Very High'];
 
 export const COLOR_SCALES = {
-  Null: '#F1F1F1',
+  Null: '#FFFFFF',
   Linear: {
     RedColor4: [
       'rgb(230, 168, 58)',
@@ -238,7 +238,7 @@ export const COLOR_SCALES = {
     '#ffff33',
   ],
   Bivariate: [
-    ['#f1f1f1', '#BAE7F6', '#7FDCF9', '#41D0FC', '#0BC6FF'],
+    ['#e5e5e5', '#BAE7F6', '#7FDCF9', '#41D0FC', '#0BC6FF'],
     ['#F6C5D4', '#BFBEDD', '#88B8E5', '#57B2ED', '#21ABF5'],
     ['#F99FBA', '#C89BC6', '#9697D3', '#6494DF', '#3690EB'],
     ['#F782A5', '#D180B3', '#9F7DC5', '#727AD4', '#4978E3'],
