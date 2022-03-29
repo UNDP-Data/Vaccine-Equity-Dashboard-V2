@@ -9,7 +9,7 @@ export const EMBED_LINK_ROOT = 'https://undp-vaccine-equity-viz.netlify.app/';
 export const PARENT_LINK_ROOT = 'https://data.undp.org/vaccine-equity/explore-data/';
 
 export const DEFAULT_VALUES = {
-  firstMetric: 'Secured and/or Expected Vaccine Supply in total courses (% of population)',
+  firstMetric: 'Secured and/or Expected Vaccine Supply in total doses (% of population)',
   secondMetric: 'Cost of vaccinating 40% of population as a percent of current health expenditure',
   colorMetric: 'Continents',
 };
