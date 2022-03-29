@@ -4,7 +4,7 @@ export const MAX_TEXT_LENGTH = 100;
 
 export const TRUNCATE_MAX_TEXT_LENGTH = 125;
 
-export const EMBED_LINK_ROOT = 'https://data.undp.org/vaccine-equity-visualization/';
+export const EMBED_LINK_ROOT = 'https://undp-vaccine-equity-viz.netlify.app/';
 
 export const PARENT_LINK_ROOT = 'https://data.undp.org/vaccine-equity/explore-data/';
 

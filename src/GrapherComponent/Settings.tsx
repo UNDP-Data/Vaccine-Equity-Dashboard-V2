@@ -366,13 +366,13 @@ export const Settings = (props: Props) => {
       <ButtonEl>
         <button className='primary' type='button' onClick={() => { updateShowSource(true); }}>Data Description & Download</button>
         <button
-          className={graphType === 'barGraph' && verticalBarLayout ? 'disabled primary' : 'primary'}
+          className='primary'
           type='button'
-          disabled={!(graphType === 'barGraph' && verticalBarLayout)}
           onClick={() => {
             // tslint:disable-next-line: no-floating-promises
+            const node = document.getElementById('graph-node') as HTMLElement;
             domtoimage
-              .toPng(document.getElementById('graph-node') as HTMLElement)
+              .toPng(node, { height: node.scrollHeight })
               .then((dataUrl: any) => {
                 const link = document.createElement('a');
                 link.download = 'graph.png';
