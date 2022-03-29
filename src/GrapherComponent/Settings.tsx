@@ -369,7 +369,6 @@ export const Settings = (props: Props) => {
           className='primary'
           type='button'
           onClick={() => {
-            // tslint:disable-next-line: no-floating-promises
             const node = document.getElementById('graph-node') as HTMLElement;
             domtoimage
               .toPng(node, { height: node.scrollHeight })

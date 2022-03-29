@@ -28,20 +28,6 @@ const DownloadButton = styled.div`
   }
 `;
 const ExportExcel = (props: Props) => {
-  // ******** XLSX with object key as header *************
-  // const fileType =
-  //   "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8";
-  // const fileExtension = ".xlsx";
-
-  // const exportToCSV = (csvData, fileName) => {
-  //   const ws = XLSX.utils.json_to_sheet(csvData);
-  //   const wb = { Sheets: { data: ws }, SheetNames: ["data"] };
-  //   const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
-  //   const data = new Blob([excelBuffer], { type: fileType });
-  //   FileSaver.saveAs(data, fileName + fileExtension);
-  // };
-
-  // ******** XLSX with new header *************
   const {
     data,
     indicatorTitle,
@@ -77,7 +63,7 @@ const ExportExcel = (props: Props) => {
     const wb = { Sheets: { data: ws }, SheetNames: ['data'] };
     const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
     const dataForExcel = new Blob([excelBuffer], { type: fileType });
-    FileSaver.saveAs(dataForExcel, 'data.xlsx');
+    FileSaver.saveAs(dataForExcel, `${indicatorTitle.replaceAll(',', '').replaceAll('.', ' ')}.xlsx`);
   };
 
   return (
