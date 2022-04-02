@@ -426,6 +426,9 @@ export const UnivariateMap = (props: Props) => {
                   onMouseLeave={() => { setSelectedColor(undefined); }}
                   style={{ cursor: 'pointer' }}
                 >
+                  {
+                    xIndicatorMetaData.colorScaleTooltip ? <title>{xIndicatorMetaData.colorScaleTooltip[i]}</title> : null
+                  }
                   <rect
                     x={xIndicatorMetaData.IsCategorical ? (i * 320) / valueArray.length + 1 : (i * 320) / colorArray.length + 1}
                     y={1}

@@ -50,6 +50,7 @@ export interface IndicatorMetaDataType {
   Categories: number[];
   CategorizeByRanking?: boolean;
   IsCategorical?: boolean;
+  colorScaleTooltip?: string[];
   IsDivergent?: boolean;
   ScatterPlot?: boolean;
   Map?: boolean;
