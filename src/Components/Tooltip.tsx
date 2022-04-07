@@ -101,6 +101,7 @@ const ColorIcon = styled.div<ColorIconProps>`
   height: 1.6rem;
   margin: 0 0.2rem;
   background-color: ${(props) => (props.fill ? props.fill : 'var(--yellow)')};
+  border: ${(props) => (props.fill === '#FFF' || props.fill === '#fff' || props.fill === '#FFFFFF' || props.fill === '#ffffff' ? '1px solid #AAA' : `1px solid ${props.fill}`)};
 `;
 
 const SizeIcon = styled.div`
