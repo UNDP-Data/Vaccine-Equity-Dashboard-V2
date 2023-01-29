@@ -18,6 +18,25 @@ export const INCOME_GROUPS = ['Low income', 'Lower middle income', 'Upper middle
 
 export const HDI_LEVELS = ['Low', 'Medium', 'High', 'Very High'];
 
+export const LABEL_EXTRA = [
+  {
+    forLabel: 'h7_vaccinationpolicy',
+    labelExtra: 'h7_name',
+  },
+  {
+    forLabel: 'v3_vaccinefinancialsupportsummar',
+    labelExtra: 'v3_name',
+  },
+  {
+    forLabel: 'informcovid19risk',
+    labelExtra: 'covid19riskclass',
+  },
+  {
+    forLabel: 'numberofdayseelapsedfromfirstvaccine',
+    labelExtra: 'first_vaccine_date',
+  },
+];
+
 export const COLOR_SCALES = {
   Null: '#FFFFFF',
   Linear: {

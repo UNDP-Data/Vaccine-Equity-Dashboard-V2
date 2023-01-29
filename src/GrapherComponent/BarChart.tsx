@@ -14,7 +14,7 @@ import {
 } from '../Types';
 import Context from '../Context/Context';
 import {
-  COLOR_SCALES, CONTINENTS, HDI_LEVELS, INCOME_GROUPS, MAX_TEXT_LENGTH,
+  COLOR_SCALES, CONTINENTS, HDI_LEVELS, INCOME_GROUPS, LABEL_EXTRA, MAX_TEXT_LENGTH,
 } from '../Constants';
 import { Tooltip } from '../Components/Tooltip';
 
@@ -63,17 +63,19 @@ export const BarChart = (props: Props) => {
       const colorIndicatorIndex = d.data.findIndex((el) => colorIndicatorMetaData?.DataKey === el.indicator);
 
       const xVal = xIndicatorIndex === -1 ? undefined : d.data[xIndicatorIndex].value;
-      const xLabelExtra = xIndicatorIndex === -1 ? undefined : d.data[xIndicatorIndex].labelExtra;
+      const xIndicatorLabelExtraIndex = LABEL_EXTRA.findIndex((el) => el.forLabel === xIndicatorMetaData.DataKey) === -1 || xIndicatorIndex === -1 ? -1 : d.data.findIndex((el) => LABEL_EXTRA[LABEL_EXTRA.findIndex((el1) => el1.forLabel === xIndicatorMetaData.DataKey)].labelExtra === el.indicator);
+      const xLabelExtra = xIndicatorLabelExtraIndex === -1 ? undefined : d.data[xIndicatorLabelExtraIndex].value;
       const colorVal = colorIndicator === 'Continents' ? d['Group 1']
         : colorIndicator === 'Income Groups' ? d['Income group']
           : colorIndicatorIndex === -1 ? undefined : d.data[colorIndicatorIndex].value;
-      const colorLabelExtra = colorIndicatorIndex === -1 ? undefined : d.data[colorIndicatorIndex].labelExtra;
+      const colorIndicatorLabelExtraIndex = LABEL_EXTRA.findIndex((el) => el.forLabel === colorIndicatorMetaData?.DataKey) === -1 || colorIndicatorIndex === -1 ? -1 : d.data.findIndex((el) => LABEL_EXTRA[LABEL_EXTRA.findIndex((el1) => el1.forLabel === colorIndicatorMetaData?.DataKey)].labelExtra === el.indicator);
+      const colorLabelExtra = colorIndicatorLabelExtraIndex === -1 ? undefined : d.data[colorIndicatorLabelExtraIndex].value;
       const countryGroup = selectedCountryGroup === 'All' ? true : d[selectedCountryGroup];
       const incomeGroup = !!(selectedIncomeGroups.length === 0 || selectedIncomeGroups.indexOf(d['Income group']) !== -1);
       const region = !!(selectedRegions.length === 0 || selectedRegions.indexOf(d['Group 2']) !== -1);
       const country = !!(selectedCountries.length === 0 || selectedCountries.indexOf(d['Country or Area']) !== -1);
       return ({
-        countryCode: d['Alpha-3 code-1'],
+        countryCode: d['Alpha-3 code'],
         xVal,
         xLabelExtra,
         colorVal,
@@ -83,7 +85,7 @@ export const BarChart = (props: Props) => {
         incomeGroup,
         country,
       });
-    }).filter((d) => d.xVal !== undefined && d.country && d.countryGroup && d.incomeGroup && d.region), 'xVal', 'asc',
+    }).filter((d) => d.xVal !== undefined && d.xVal !== null && d.country && d.countryGroup && d.incomeGroup && d.region), 'xVal', 'asc',
   );
 
   const xMaxValue = maxBy(dataFormatted, (d) => d.xVal) ? maxBy(dataFormatted, (d) => d.xVal)?.xVal as number : 0;
@@ -298,12 +300,12 @@ export const BarChart = (props: Props) => {
 
           {
             dataFormatted.map((d, i) => {
-              const countryData = data[data.findIndex((el) => el['Alpha-3 code-1'] === d.countryCode)];
-              const selectedColorOpacity = d.colorVal !== undefined ? !selectedColor || selectedColor === colorScale(d.colorVal) as string : !selectedColor;
+              const countryData = data[data.findIndex((el) => el['Alpha-3 code'] === d.countryCode)];
+              const selectedColorOpacity = d.colorVal !== undefined && d.colorVal !== null ? !selectedColor || selectedColor === colorScale(d.colorVal) as string : !selectedColor;
               const rowData: HoverRowDataType[] = [
                 {
                   title: xAxisIndicator,
-                  value: d.xVal !== undefined ? d.xVal : 'NA',
+                  value: d.xVal !== undefined && d.xVal !== null ? d.xVal : 'NA',
                   labelExtra: d.xLabelExtra,
                   type: 'x-axis',
                   prefix: xIndicatorMetaData?.LabelPrefix,
@@ -313,7 +315,7 @@ export const BarChart = (props: Props) => {
               if (colorIndicator !== 'Continents') {
                 rowData.push({
                   title: colorIndicator,
-                  value: d.colorVal !== undefined ? d.colorVal : 'NA',
+                  value: d.colorVal !== undefined && d.colorVal !== null ? d.colorVal : 'NA',
                   labelExtra: d.colorLabelExtra,
                   type: 'color',
                   color: d.colorVal ? colorScale(d.colorVal) as string : '#666',
@@ -322,7 +324,7 @@ export const BarChart = (props: Props) => {
                 });
               }
 
-              if (d.xVal === undefined) return null;
+              if (d.xVal === undefined || d.xVal === null) return null;
               return (
                 <g
                   key={i}
@@ -376,7 +378,7 @@ export const BarChart = (props: Props) => {
                             dy='5px'
                             dx={d.xVal >= 0 ? '-5px' : '19px'}
                           >
-                            {countryData['Alpha-3 code-1']}
+                            {countryData['Alpha-3 code']}
                           </text>
                         </g>
                       )

@@ -1,6 +1,6 @@
 export interface CountryGroupDataType {
   'Alpha-2 code': string;
-  'Alpha-3 code-1': string;
+  'Alpha-3 code': string;
   'Country or Area': string;
   'Development classification': string;
   'Group 1': string;
@@ -17,8 +17,7 @@ export interface CountryGroupDataType {
 
 export interface IndicatorDataType {
   indicator: string;
-  value?:number;
-  labelExtra?: string | number;
+  value:number;
 }
 export interface DataType extends CountryGroupDataType {
   data: IndicatorDataType[];

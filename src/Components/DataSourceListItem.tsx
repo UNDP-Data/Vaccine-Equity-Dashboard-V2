@@ -55,7 +55,7 @@ const dataTable = (data: DataType[], indicator: IndicatorMetaDataType) => {
   const table: any = [];
   data.forEach((d) => {
     const country = d['Country or Area'];
-    const countryCode = d['Alpha-3 code-1'];
+    const countryCode = d['Alpha-3 code'];
     const value = d.data[d.data.findIndex((el) => el.indicator === indicator.DataKey)]?.value;
     table.push({
       country,
@@ -69,7 +69,7 @@ const dataTable = (data: DataType[], indicator: IndicatorMetaDataType) => {
 const dataTableForExcel = (data: DataType[], indicator: IndicatorMetaDataType) => {
   const table: any = data.map((d) => ({
     country: d['Country or Area'],
-    countryCode: d['Alpha-3 code-1'],
+    countryCode: d['Alpha-3 code'],
     value: d.data[d.data.findIndex((el) => el.indicator === indicator.DataKey)]?.value,
   }));
   return table;
@@ -135,7 +135,7 @@ export const DataSourceListItem = (props: Props) => {
           headers={
             [
               { label: 'Country or Area', key: 'country' },
-              { label: 'Alpha-3 code-1', key: 'countryCode' },
+              { label: 'Alpha-3 code', key: 'countryCode' },
               { label: indicatorData.Indicator, key: 'value' },
             ]
           }

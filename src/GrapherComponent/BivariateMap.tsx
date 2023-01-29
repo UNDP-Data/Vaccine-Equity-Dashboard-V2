@@ -15,7 +15,7 @@ import {
 } from '../Types';
 import Context from '../Context/Context';
 import World from '../Data/worldMap.json';
-import { COLOR_SCALES } from '../Constants';
+import { COLOR_SCALES, LABEL_EXTRA } from '../Constants';
 import { Tooltip } from '../Components/Tooltip';
 
 interface Props {
@@ -168,7 +168,7 @@ export const BivariateMap = (props: Props) => {
         <g ref={mapG}>
           {
             (World as any).features.map((d: any, i: number) => {
-              const index = data.findIndex((el: any) => el['Alpha-3 code-1'] === d.properties.ISO3);
+              const index = data.findIndex((el) => el['Alpha-3 code'] === d.properties.ISO3);
               if ((index !== -1) || d.properties.NAME === 'Antarctica') return null;
               return (
                 <g
@@ -176,7 +176,7 @@ export const BivariateMap = (props: Props) => {
                   opacity={!selectedColor ? 1 : 0.3}
                 >
                   {
-                  d.geometry.type === 'MultiPolygon' ? d.geometry.coordinates.map((el:any, j: any) => {
+                  d.geometry.type === 'MultiPolygon' ? d.geometry.coordinates.map((el:any, j: number) => {
                     let masterPath = '';
                     el.forEach((geo: number[][]) => {
                       let path = ' M';
@@ -220,26 +220,30 @@ export const BivariateMap = (props: Props) => {
           }
           {
             data.map((d, i: number) => {
-              const index = (World as any).features.findIndex((el: any) => d['Alpha-3 code-1'] === el.properties.ISO3);
+              const index = (World as any).features.findIndex((el: any) => d['Alpha-3 code'] === el.properties.ISO3);
               const xIndicatorIndex = d.data.findIndex((el) => xIndicatorMetaData.DataKey === el.indicator);
               const yIndicatorIndex = d.data.findIndex((el) => yIndicatorMetaData.DataKey === el.indicator);
               const xVal = xIndicatorIndex === -1 ? undefined : d.data[xIndicatorIndex].value;
               const yVal = yIndicatorIndex === -1 ? undefined : d.data[yIndicatorIndex].value;
-              const xColorCoord = xVal !== undefined ? xScale(xIndicatorMetaData.IsCategorical ? Math.floor(xVal) : xVal) : undefined;
-              const yColorCoord = yVal !== undefined ? yScale(yIndicatorMetaData.IsCategorical ? Math.floor(yVal) : yVal) : undefined;
+              const xColorCoord = xVal !== undefined && xVal !== null ? xScale(xIndicatorMetaData.IsCategorical ? Math.floor(xVal) : xVal) : undefined;
+              const yColorCoord = yVal !== undefined && yVal !== null ? yScale(yIndicatorMetaData.IsCategorical ? Math.floor(yVal) : yVal) : undefined;
 
-              const color = xColorCoord !== undefined && yColorCoord !== undefined ? COLOR_SCALES.Bivariate[yColorCoord][xColorCoord] : COLOR_SCALES.Null;
+              const color = xColorCoord !== undefined && yColorCoord !== undefined && xColorCoord !== null && yColorCoord !== null ? COLOR_SCALES.Bivariate[yColorCoord][xColorCoord] : COLOR_SCALES.Null;
 
               const regionOpacity = selectedRegions.length === 0 || selectedRegions.indexOf(d['Group 2']) !== -1;
               const incomeGroupOpacity = selectedIncomeGroups.length === 0 || selectedIncomeGroups.indexOf(d['Income group']) !== -1;
               const countryOpacity = selectedCountries.length === 0 || selectedCountries.indexOf(d['Country or Area']) !== -1;
               const countryGroupOpacity = selectedCountryGroup === 'All' ? true : d[selectedCountryGroup];
+              const xIndicatorLabelExtraIndex = LABEL_EXTRA.findIndex((el) => el.forLabel === xIndicatorMetaData.DataKey) === -1 || xIndicatorIndex === -1 ? -1 : d.data.findIndex((el) => LABEL_EXTRA[LABEL_EXTRA.findIndex((el1) => el1.forLabel === xIndicatorMetaData.DataKey)].labelExtra === el.indicator);
+              const xLabelExtra = xIndicatorLabelExtraIndex === -1 ? undefined : d.data[xIndicatorLabelExtraIndex].value;
+              const yIndicatorLabelExtraIndex = LABEL_EXTRA.findIndex((el) => el.forLabel === yIndicatorMetaData.DataKey) === -1 || yIndicatorIndex === -1 ? -1 : d.data.findIndex((el) => LABEL_EXTRA[LABEL_EXTRA.findIndex((el1) => el1.forLabel === yIndicatorMetaData.DataKey)].labelExtra === el.indicator);
+              const yLabelExtra = yIndicatorLabelExtraIndex === -1 ? undefined : d.data[yIndicatorLabelExtraIndex].value;
 
               const rowData: HoverRowDataType[] = [
                 {
                   title: xAxisIndicator,
-                  value: xVal === undefined ? 'NA' : xVal,
-                  labelExtra: d.data[xIndicatorIndex].labelExtra,
+                  value: xVal === undefined || xVal === null ? 'NA' : xVal,
+                  labelExtra: xLabelExtra,
                   type: 'color',
                   color,
                   prefix: xIndicatorMetaData?.LabelPrefix,
@@ -247,9 +251,9 @@ export const BivariateMap = (props: Props) => {
                 },
                 {
                   title: yAxisIndicator,
-                  value: yVal === undefined ? 'NA' : yVal,
+                  value: yVal === undefined || yVal === null ? 'NA' : yVal,
                   type: 'color',
-                  labelExtra: d.data[yIndicatorIndex].labelExtra,
+                  labelExtra: yLabelExtra,
                   color,
                   prefix: yIndicatorMetaData?.LabelPrefix,
                   suffix: yIndicatorMetaData?.LabelSuffix,
@@ -258,10 +262,13 @@ export const BivariateMap = (props: Props) => {
               if (sizeIndicatorMetaData) {
                 const sizeIndicatorIndex = d.data.findIndex((el) => sizeIndicatorMetaData?.DataKey === el.indicator);
                 const sizeVal = sizeIndicatorIndex === -1 ? undefined : d.data[sizeIndicatorIndex].value;
+                const sizeIndicatorLabelExtraIndex = LABEL_EXTRA.findIndex((el) => el.forLabel === sizeIndicatorMetaData.DataKey) === -1 || sizeIndicatorIndex === -1 ? -1 : d.data.findIndex((el) => LABEL_EXTRA[LABEL_EXTRA.findIndex((el1) => el1.forLabel === sizeIndicatorMetaData.DataKey)].labelExtra === el.indicator);
+                const sizeLabelExtra = sizeIndicatorLabelExtraIndex === -1 ? undefined : d.data[sizeIndicatorLabelExtraIndex].value;
+
                 rowData.push({
                   title: sizeIndicator,
-                  value: sizeVal !== undefined ? sizeVal : 'NA',
-                  labelExtra: d.data[sizeIndicatorIndex].labelExtra,
+                  value: sizeVal !== undefined && sizeVal !== null ? sizeVal : 'NA',
+                  labelExtra: sizeLabelExtra,
                   type: 'size',
                   prefix: sizeIndicatorMetaData?.LabelPrefix,
                   suffix: sizeIndicatorMetaData?.LabelSuffix,
@@ -300,7 +307,7 @@ export const BivariateMap = (props: Props) => {
                 >
                   {
                     index === -1 ? null
-                      : (World as any).features[index].geometry.type === 'MultiPolygon' ? (World as any).features[index].geometry.coordinates.map((el:any, j: any) => {
+                      : (World as any).features[index].geometry.type === 'MultiPolygon' ? (World as any).features[index].geometry.coordinates.map((el:any, j: number) => {
                         let masterPath = '';
                         el.forEach((geo: number[][]) => {
                           let path = ' M';
@@ -344,13 +351,13 @@ export const BivariateMap = (props: Props) => {
           }
           {
             hoverData
-              ? (World as any).features.filter((d: any) => d.properties.ISO3 === data[data.findIndex((el: DataType) => el['Country or Area'] === hoverData?.country)]['Alpha-3 code-1']).map((d: any, i: number) => (
+              ? (World as any).features.filter((d: any) => d.properties.ISO3 === data[data.findIndex((el: DataType) => el['Country or Area'] === hoverData?.country)]['Alpha-3 code']).map((d: any, i: number) => (
                 <G
                   key={i}
                   opacity={!selectedColor ? 1 : 0}
                 >
                   {
-                    d.geometry.type === 'MultiPolygon' ? d.geometry.coordinates.map((el:any, j: any) => {
+                    d.geometry.type === 'MultiPolygon' ? d.geometry.coordinates.map((el:any, j: number) => {
                       let masterPath = '';
                       el.forEach((geo: number[][]) => {
                         let path = ' M';
@@ -407,10 +414,10 @@ export const BivariateMap = (props: Props) => {
                     const yIndicatorIndex = d.data.findIndex((el) => yIndicatorMetaData.DataKey === el.indicator);
                     const xVal = xIndicatorIndex === -1 ? undefined : d.data[xIndicatorIndex].value;
                     const yVal = yIndicatorIndex === -1 ? undefined : d.data[yIndicatorIndex].value;
-                    const xColorCoord = xVal !== undefined ? xScale(xIndicatorMetaData.IsCategorical ? Math.floor(xVal) : xVal) : undefined;
-                    const yColorCoord = yVal !== undefined ? yScale(yIndicatorMetaData.IsCategorical ? Math.floor(yVal) : yVal) : undefined;
+                    const xColorCoord = xVal !== undefined && xVal !== null ? xScale(xIndicatorMetaData.IsCategorical ? Math.floor(xVal) : xVal) : undefined;
+                    const yColorCoord = yVal !== undefined && yVal !== null ? yScale(yIndicatorMetaData.IsCategorical ? Math.floor(yVal) : yVal) : undefined;
 
-                    const color = xColorCoord !== undefined && yColorCoord !== undefined ? COLOR_SCALES.Bivariate[yColorCoord][xColorCoord] : COLOR_SCALES.Null;
+                    const color = xColorCoord !== undefined && yColorCoord !== undefined && xColorCoord !== null && yColorCoord !== null ? COLOR_SCALES.Bivariate[yColorCoord][xColorCoord] : COLOR_SCALES.Null;
 
                     const regionOpacity = selectedRegions.length === 0 || selectedRegions.indexOf(d['Group 2']) !== -1;
                     const incomeGroupOpacity = selectedIncomeGroups.length === 0 || selectedIncomeGroups.indexOf(d['Income group']) !== -1;
@@ -419,7 +426,7 @@ export const BivariateMap = (props: Props) => {
                     const rowData: HoverRowDataType[] = [
                       {
                         title: xAxisIndicator,
-                        value: xVal === undefined ? 'NA' : xVal,
+                        value: xVal === undefined || xVal === null ? 'NA' : xVal,
                         type: 'color',
                         color,
                         prefix: xIndicatorMetaData?.LabelPrefix,
@@ -427,7 +434,7 @@ export const BivariateMap = (props: Props) => {
                       },
                       {
                         title: yAxisIndicator,
-                        value: yVal === undefined ? 'NA' : yVal,
+                        value: yVal === undefined || yVal === null ? 'NA' : yVal,
                         type: 'color',
                         color,
                         prefix: yIndicatorMetaData?.LabelPrefix,
@@ -437,7 +444,7 @@ export const BivariateMap = (props: Props) => {
                     if (sizeIndicatorMetaData) {
                       rowData.push({
                         title: sizeIndicator,
-                        value: sizeVal !== undefined ? sizeVal : 'NA',
+                        value: sizeVal !== undefined && sizeVal !== null ? sizeVal : 'NA',
                         type: 'size',
                         prefix: sizeIndicatorMetaData?.LabelPrefix,
                         suffix: sizeIndicatorMetaData?.LabelSuffix,
@@ -470,7 +477,7 @@ export const BivariateMap = (props: Props) => {
                         }}
                         cx={center[0]}
                         cy={center[1]}
-                        r={sizeVal !== undefined && radiusScale ? radiusScale(sizeVal) : 0}
+                        r={sizeVal !== undefined && sizeVal !== null && radiusScale ? radiusScale(sizeVal) : 0}
                         stroke='#212121'
                         strokeWidth={1}
                         fill='none'

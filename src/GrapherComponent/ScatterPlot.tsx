@@ -16,7 +16,7 @@ import {
 } from '../Types';
 import Context from '../Context/Context';
 import {
-  COLOR_SCALES, CONTINENTS, HDI_LEVELS, INCOME_GROUPS, MAX_TEXT_LENGTH, TRUNCATE_MAX_TEXT_LENGTH,
+  COLOR_SCALES, CONTINENTS, HDI_LEVELS, INCOME_GROUPS, LABEL_EXTRA, MAX_TEXT_LENGTH, TRUNCATE_MAX_TEXT_LENGTH,
 } from '../Constants';
 
 interface Props {
@@ -72,20 +72,24 @@ export const ScatterPlot = (props: Props) => {
       const colorIndicatorIndex = d.data.findIndex((el) => colorIndicatorMetaData?.DataKey === el.indicator);
       const radiusIndicatorIndex = radiusScale ? d.data.findIndex((el) => sizeIndicatorMetaData?.DataKey === el.indicator) : -1;
       const radiusValue = !radiusScale ? 5 : radiusIndicatorIndex === -1 ? undefined : d.data[radiusIndicatorIndex].value;
-      const radiusLabelExtra = !radiusScale || radiusIndicatorIndex === -1 ? undefined : d.data[radiusIndicatorIndex].labelExtra;
+      const radiusIndicatorLabelExtraIndex = LABEL_EXTRA.findIndex((el) => el.forLabel === sizeIndicatorMetaData?.DataKey) === -1 || radiusIndicatorIndex === -1 ? -1 : d.data.findIndex((el) => LABEL_EXTRA[LABEL_EXTRA.findIndex((el1) => el1.forLabel === sizeIndicatorMetaData?.DataKey)].labelExtra === el.indicator);
+      const radiusLabelExtra = radiusIndicatorLabelExtraIndex === -1 ? undefined : d.data[radiusIndicatorLabelExtraIndex].value;
       const xVal = xIndicatorIndex === -1 ? undefined : d.data[xIndicatorIndex].value;
-      const xLabelExtra = xIndicatorIndex === -1 ? undefined : d.data[xIndicatorIndex].labelExtra;
+      const xIndicatorLabelExtraIndex = LABEL_EXTRA.findIndex((el) => el.forLabel === xIndicatorMetaData.DataKey) === -1 || xIndicatorIndex === -1 ? -1 : d.data.findIndex((el) => LABEL_EXTRA[LABEL_EXTRA.findIndex((el1) => el1.forLabel === xIndicatorMetaData.DataKey)].labelExtra === el.indicator);
+      const xLabelExtra = xIndicatorLabelExtraIndex === -1 ? undefined : d.data[xIndicatorLabelExtraIndex].value;
       const yVal = yIndicatorIndex === -1 ? undefined : d.data[yIndicatorIndex].value;
-      const yLabelExtra = yIndicatorIndex === -1 ? undefined : d.data[yIndicatorIndex].labelExtra;
+      const yIndicatorLabelExtraIndex = LABEL_EXTRA.findIndex((el) => el.forLabel === yIndicatorMetaData.DataKey) === -1 || yIndicatorIndex === -1 ? -1 : d.data.findIndex((el) => LABEL_EXTRA[LABEL_EXTRA.findIndex((el1) => el1.forLabel === yIndicatorMetaData.DataKey)].labelExtra === el.indicator);
+      const yLabelExtra = yIndicatorLabelExtraIndex === -1 ? undefined : d.data[yIndicatorLabelExtraIndex].value;
       const colorVal = colorIndicator === 'Continents' ? d['Group 1']
         : colorIndicator === 'Income Groups' ? d['Income group']
           : colorIndicatorIndex === -1 ? undefined
             : d.data[colorIndicatorIndex].value;
-      const colorLabelExtra = colorIndicatorIndex === -1 ? undefined : d.data[colorIndicatorIndex].labelExtra;
+      const colorIndicatorLabelExtraIndex = LABEL_EXTRA.findIndex((el) => el.forLabel === colorIndicatorMetaData?.DataKey) === -1 || colorIndicatorIndex === -1 ? -1 : d.data.findIndex((el) => LABEL_EXTRA[LABEL_EXTRA.findIndex((el1) => el1.forLabel === colorIndicatorMetaData?.DataKey)].labelExtra === el.indicator);
+      const colorLabelExtra = colorIndicatorLabelExtraIndex === -1 ? undefined : d.data[colorIndicatorLabelExtraIndex].value;
       const countryGroup = selectedCountryGroup === 'All' ? true : d[selectedCountryGroup];
       const region = !!(selectedRegions.length === 0 || selectedRegions.indexOf(d['Group 2']) !== -1);
       return ({
-        countryCode: d['Alpha-3 code-1'],
+        countryCode: d['Alpha-3 code'],
         radiusValue,
         radiusLabelExtra,
         xVal,
@@ -97,7 +101,7 @@ export const ScatterPlot = (props: Props) => {
         region,
         countryGroup,
       });
-    }).filter((d) => d.radiusValue !== undefined && d.xVal !== undefined && d.yVal !== undefined && d.countryGroup && d.region), 'radiusValue', 'desc',
+    }).filter((d) => d.radiusValue !== undefined && d.xVal !== undefined && d.yVal !== undefined && d.radiusValue !== null && d.xVal !== null && d.yVal !== null && d.countryGroup && d.region), 'radiusValue', 'desc',
   );
 
   const xMaxValue = maxBy(dataFormatted, (d) => d.xVal) ? maxBy(dataFormatted, (d) => d.xVal)?.xVal as number : 0;
@@ -156,7 +160,6 @@ export const ScatterPlot = (props: Props) => {
         break;
     }
   }
-
   const colorDomain = colorIndicator === 'Continents' ? CONTINENTS
     : colorIndicator === 'Income Groups' ? INCOME_GROUPS
       : colorIndicator === 'Human development index (HDI)' ? [0.55, 0.7, 0.8]
@@ -369,14 +372,14 @@ export const ScatterPlot = (props: Props) => {
 
           {
             dataFormatted.map((d, i) => {
-              const countryData = data[data.findIndex((el) => el['Alpha-3 code-1'] === d.countryCode)];
+              const countryData = data[data.findIndex((el) => el['Alpha-3 code'] === d.countryCode)];
               const incomeGroupOpacity = selectedIncomeGroups.length === 0 || selectedIncomeGroups.indexOf(countryData['Income group']) !== -1;
               const countryOpacity = selectedCountries.length === 0 || selectedCountries.indexOf(countryData['Country or Area']) !== -1;
-              const selectedColorOpacity = d.colorVal !== undefined ? !selectedColor || selectedColor === colorScale(d.colorVal) as string : !selectedColor;
+              const selectedColorOpacity = d.colorVal !== undefined && d.colorVal !== null ? !selectedColor || selectedColor === colorScale(d.colorVal) as string : !selectedColor;
               const rowData: HoverRowDataType[] = [
                 {
                   title: xAxisIndicator,
-                  value: d.xVal !== undefined ? d.xVal : 'NA',
+                  value: d.xVal !== undefined && d.xVal !== null ? d.xVal : 'NA',
                   labelExtra: d.xLabelExtra,
                   type: 'x-axis',
                   prefix: xIndicatorMetaData?.LabelPrefix,
@@ -384,7 +387,7 @@ export const ScatterPlot = (props: Props) => {
                 },
                 {
                   title: yAxisIndicator,
-                  value: d.yVal !== undefined ? d.yVal : 'NA',
+                  value: d.yVal !== undefined && d.yVal !== null ? d.yVal : 'NA',
                   labelExtra: d.yLabelExtra,
                   type: 'y-axis',
                   prefix: yIndicatorMetaData?.LabelPrefix,
@@ -394,7 +397,7 @@ export const ScatterPlot = (props: Props) => {
               if (sizeIndicator) {
                 rowData.push({
                   title: sizeIndicator,
-                  value: d.radiusValue !== undefined ? d.radiusValue : 'NA',
+                  value: d.radiusValue !== undefined && d.radiusValue !== null ? d.radiusValue : 'NA',
                   labelExtra: d.radiusLabelExtra,
                   type: 'size',
                   prefix: sizeIndicatorMetaData?.LabelPrefix,
@@ -404,7 +407,7 @@ export const ScatterPlot = (props: Props) => {
               if (colorIndicator !== 'Continents') {
                 rowData.push({
                   title: colorIndicator,
-                  value: d.colorVal !== undefined ? d.colorVal : 'NA',
+                  value: d.colorVal !== undefined && d.colorVal !== null ? d.colorVal : 'NA',
                   labelExtra: d.colorLabelExtra,
                   type: 'color',
                   color: d.colorVal ? colorScale(d.colorVal) as string : '#666',
@@ -412,7 +415,7 @@ export const ScatterPlot = (props: Props) => {
                   suffix: colorIndicatorMetaData?.LabelSuffix,
                 });
               }
-              if (d.xVal === undefined || d.yVal === undefined || d.radiusValue === undefined) return null;
+              if (d.xVal === undefined || d.yVal === undefined || d.radiusValue === undefined || d.xVal === null || d.yVal === null || d.radiusValue === null) return null;
               return (
                 <g
                   key={i}
@@ -423,6 +426,7 @@ export const ScatterPlot = (props: Props) => {
                         ? incomeGroupOpacity && countryOpacity && selectedColorOpacity ? 1 : 0.1
                         : hoverData.country === countryData['Country or Area'] ? 1 : 0.1
                       }
+                    className={d.countryCode}
                     transform={`translate(${xScale(d.xVal)},${yScale(d.yVal)})`}
                   >
                     <circle
@@ -444,7 +448,7 @@ export const ScatterPlot = (props: Props) => {
                             dy={4}
                             dx={3}
                           >
-                            {countryData['Alpha-3 code-1']}
+                            {countryData['Alpha-3 code']}
                           </text>
                         ) : null
                     }

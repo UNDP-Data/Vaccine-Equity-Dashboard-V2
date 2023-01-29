@@ -13,7 +13,7 @@ import {
 } from '../Types';
 import Context from '../Context/Context';
 import World from '../Data/worldMap.json';
-import { COLOR_SCALES } from '../Constants';
+import { COLOR_SCALES, LABEL_EXTRA } from '../Constants';
 import { Tooltip } from '../Components/Tooltip';
 
 interface Props {
@@ -100,11 +100,13 @@ export const UnivariateMap = (props: Props) => {
         <g ref={mapG}>
           {
             data.map((d, i: number) => {
-              const index = (World as any).features.findIndex((el: any) => d['Alpha-3 code-1'] === el.properties.ISO3);
+              const index = (World as any).features.findIndex((el: any) => d['Alpha-3 code'] === el.properties.ISO3);
               const indicatorIndex = d.data.findIndex((el) => xIndicatorMetaData.DataKey === el.indicator);
               const val = indicatorIndex === -1 ? undefined : d.data[indicatorIndex].value;
-              const valLabelExtra = indicatorIndex === -1 ? undefined : d.data[indicatorIndex].labelExtra;
-              const color = val !== undefined ? colorScale(xIndicatorMetaData.IsCategorical ? Math.floor(val) : val) : COLOR_SCALES.Null;
+              const valIndicatorLabelExtraIndex = LABEL_EXTRA.findIndex((el) => el.forLabel === xIndicatorMetaData.DataKey) === -1 || indicatorIndex === -1 ? -1 : d.data.findIndex((el) => LABEL_EXTRA[LABEL_EXTRA.findIndex((el1) => el1.forLabel === xIndicatorMetaData.DataKey)].labelExtra === el.indicator);
+              const valLabelExtra = valIndicatorLabelExtraIndex === -1 ? undefined : d.data[valIndicatorLabelExtraIndex].value;
+
+              const color = val !== undefined && val !== null ? colorScale(xIndicatorMetaData.IsCategorical ? Math.floor(val) : val) : COLOR_SCALES.Null;
 
               const regionOpacity = selectedRegions.length === 0 || selectedRegions.indexOf(d['Group 2']) !== -1;
               const incomeGroupOpacity = selectedIncomeGroups.length === 0 || selectedIncomeGroups.indexOf(d['Income group']) !== -1;
@@ -114,7 +116,7 @@ export const UnivariateMap = (props: Props) => {
               const rowData: HoverRowDataType[] = [
                 {
                   title: xAxisIndicator,
-                  value: val === undefined ? 'NA' : val,
+                  value: val === undefined || val === null ? 'NA' : val,
                   labelExtra: valLabelExtra,
                   type: 'color',
                   color,
@@ -125,10 +127,11 @@ export const UnivariateMap = (props: Props) => {
               if (sizeIndicatorMetaData) {
                 const sizeIndicatorIndex = d.data.findIndex((el) => sizeIndicatorMetaData?.DataKey === el.indicator);
                 const sizeVal = sizeIndicatorIndex === -1 ? undefined : d.data[sizeIndicatorIndex].value;
-                const sizeLabelExtra = sizeIndicatorIndex === -1 ? undefined : d.data[sizeIndicatorIndex].labelExtra;
+                const sizeIndicatorLabelExtraIndex = LABEL_EXTRA.findIndex((el) => el.forLabel === sizeIndicatorMetaData.DataKey) === -1 || sizeIndicatorIndex === -1 ? -1 : d.data.findIndex((el) => LABEL_EXTRA[LABEL_EXTRA.findIndex((el1) => el1.forLabel === sizeIndicatorMetaData.DataKey)].labelExtra === el.indicator);
+                const sizeLabelExtra = sizeIndicatorLabelExtraIndex === -1 ? undefined : d.data[sizeIndicatorLabelExtraIndex].value;
                 rowData.push({
                   title: sizeIndicator,
-                  value: sizeVal !== undefined ? sizeVal : 'NA',
+                  value: sizeVal !== undefined && sizeVal !== null ? sizeVal : 'NA',
                   labelExtra: sizeLabelExtra,
                   type: 'size',
                   prefix: sizeIndicatorMetaData?.LabelPrefix,
@@ -167,7 +170,7 @@ export const UnivariateMap = (props: Props) => {
                 >
                   {
                     index === -1 ? null
-                      : (World as any).features[index].geometry.type === 'MultiPolygon' ? (World as any).features[index].geometry.coordinates.map((el:any, j: any) => {
+                      : (World as any).features[index].geometry.type === 'MultiPolygon' ? (World as any).features[index].geometry.coordinates.map((el:any, j: number) => {
                         let masterPath = '';
                         el.forEach((geo: number[][]) => {
                           let path = ' M';
@@ -211,7 +214,7 @@ export const UnivariateMap = (props: Props) => {
           }
           {
             (World as any).features.map((d: any, i: number) => {
-              const index = data.findIndex((el: any) => el['Alpha-3 code-1'] === d.properties.ISO3);
+              const index = data.findIndex((el) => el['Alpha-3 code'] === d.properties.ISO3);
               if ((index !== -1) || d.properties.NAME === 'Antarctica') return null;
               return (
                 <g
@@ -263,7 +266,7 @@ export const UnivariateMap = (props: Props) => {
           }
           {
             hoverData
-              ? (World as any).features.filter((d: any) => d.properties.ISO3 === data[data.findIndex((el: DataType) => el['Country or Area'] === hoverData?.country)]['Alpha-3 code-1']).map((d: any) => (
+              ? (World as any).features.filter((d: any) => d.properties.ISO3 === data[data.findIndex((el: DataType) => el['Country or Area'] === hoverData?.country)]['Alpha-3 code']).map((d: any) => (
                 <G
                   opacity={!selectedColor ? 1 : 0}
                 >
@@ -319,13 +322,17 @@ export const UnivariateMap = (props: Props) => {
                 {
                   data.map((d, i) => {
                     const sizeIndicatorIndex = d.data.findIndex((el) => sizeIndicatorMetaData.DataKey === el.indicator);
-                    const sizeLabelExtra = sizeIndicatorIndex === -1 ? undefined : d.data[sizeIndicatorIndex].labelExtra;
+                    const sizeIndicatorLabelExtraIndex = LABEL_EXTRA.findIndex((el) => el.forLabel === sizeIndicatorMetaData.DataKey) === -1 || sizeIndicatorIndex === -1 ? -1 : d.data.findIndex((el) => LABEL_EXTRA[LABEL_EXTRA.findIndex((el1) => el1.forLabel === sizeIndicatorMetaData.DataKey)].labelExtra === el.indicator);
+                    const sizeLabelExtra = sizeIndicatorLabelExtraIndex === -1 ? undefined : d.data[sizeIndicatorLabelExtraIndex].value;
                     const sizeVal = sizeIndicatorIndex === -1 ? undefined : d.data[sizeIndicatorIndex].value;
                     const center = projection([d['Longitude (average)'], d['Latitude (average)']]) as [number, number];
                     const indicatorIndex = d.data.findIndex((el) => xIndicatorMetaData.DataKey === el.indicator);
                     const val = indicatorIndex === -1 ? undefined : d.data[indicatorIndex].value;
-                    const valLabelExtra = indicatorIndex === -1 ? undefined : d.data[indicatorIndex].labelExtra;
-                    const color = val !== undefined ? colorScale(xIndicatorMetaData.IsCategorical ? Math.floor(val) : val) : COLOR_SCALES.Null;
+
+                    const valIndicatorLabelExtraIndex = LABEL_EXTRA.findIndex((el) => el.forLabel === xIndicatorMetaData.DataKey) === -1 || indicatorIndex === -1 ? -1 : d.data.findIndex((el) => LABEL_EXTRA[LABEL_EXTRA.findIndex((el1) => el1.forLabel === xIndicatorMetaData.DataKey)].labelExtra === el.indicator);
+                    const valLabelExtra = valIndicatorLabelExtraIndex === -1 ? undefined : d.data[valIndicatorLabelExtraIndex].value;
+
+                    const color = val !== undefined && val !== null ? colorScale(xIndicatorMetaData.IsCategorical ? Math.floor(val) : val) : COLOR_SCALES.Null;
 
                     const regionOpacity = selectedRegions.length === 0 || selectedRegions.indexOf(d['Group 2']) !== -1;
                     const incomeGroupOpacity = selectedIncomeGroups.length === 0 || selectedIncomeGroups.indexOf(d['Income group']) !== -1;
@@ -335,7 +342,7 @@ export const UnivariateMap = (props: Props) => {
                     const rowData: HoverRowDataType[] = [
                       {
                         title: xAxisIndicator,
-                        value: val === undefined ? 'NA' : val,
+                        value: val === undefined || val === null ? 'NA' : val,
                         labelExtra: valLabelExtra,
                         type: 'color',
                         color,
@@ -346,7 +353,7 @@ export const UnivariateMap = (props: Props) => {
                     if (sizeIndicatorMetaData) {
                       rowData.push({
                         title: sizeIndicator,
-                        value: sizeVal !== undefined ? sizeVal : 'NA',
+                        value: sizeVal !== undefined && sizeVal !== null ? sizeVal : 'NA',
                         labelExtra: sizeLabelExtra,
                         type: 'size',
                         prefix: sizeIndicatorMetaData?.LabelPrefix,
@@ -379,7 +386,7 @@ export const UnivariateMap = (props: Props) => {
                         }}
                         cx={center[0]}
                         cy={center[1]}
-                        r={sizeVal !== undefined && radiusScale ? radiusScale(sizeVal) : 0}
+                        r={sizeVal !== undefined && sizeVal !== null && radiusScale ? radiusScale(sizeVal) : 0}
                         stroke='#212121'
                         strokeWidth={1}
                         fill='none'

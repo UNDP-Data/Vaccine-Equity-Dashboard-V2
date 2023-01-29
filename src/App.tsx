@@ -5,10 +5,9 @@ import { json, csv } from 'd3-request';
 import uniqBy from 'lodash.uniqby';
 import { queue } from 'd3-queue';
 import { Spin } from 'antd';
-import { timeParse } from 'd3-time-format';
 import 'antd/dist/antd.css';
 import {
-  DataType, CountryGroupDataType, IndicatorMetaDataType, LastUpdatedDataType,
+  DataType, IndicatorMetaDataType, LastUpdatedDataType,
 } from './Types';
 import { GrapherComponent } from './GrapherComponent';
 import Reducer from './Context/Reducer';
@@ -317,25 +316,14 @@ const App = () => {
 
   useEffect(() => {
     queue()
-      .defer(csv, 'https://raw.githubusercontent.com/UNDP-Data/Vaccine-Equity-Dashboard-Data/main/Data.csv')
-      .defer(json, 'https://raw.githubusercontent.com/UNDP-Data/Vaccine-Equity-Dashboard-Indicator-Metadata/main/indicatorMetaData.json')
-      .defer(json, 'https://raw.githubusercontent.com/UNDP-Data/Country-Taxonomy/main/country-territory-groups.json')
+      .defer(json, 'https://raw.githubusercontent.com/UNDP-Data/Vaccine-Equity-Data-Repo/main/output_minified.json')
+      .defer(json, 'https://raw.githubusercontent.com/UNDP-Data/Vaccine-Equity-Dashboard-Indicator-Metadata/for-redesign/indicatorMetaData.json')
       .defer(csv, 'https://raw.githubusercontent.com/UNDP-Data/Vaccine-Equity-Dashboard-Indicator-Metadata/main/last-updated.csv')
-      .await((err: any, data: any[], indicatorMetaData: IndicatorMetaDataType[], countryGroupData: CountryGroupDataType[], lastUpdate: LastUpdatedDataType[]) => {
+      .await((err: any, data: DataType[], indicatorMetaData: IndicatorMetaDataType[], lastUpdate: LastUpdatedDataType[]) => {
         if (err) throw err;
-        const parseTime = timeParse('%d%b%Y');
-        const dataFormatted = data.filter((d) => countryGroupData.findIndex((country) => country['Alpha-3 code-1'] === d.iso3) !== -1).map((d: any) => {
-          const countryData = countryGroupData[countryGroupData.findIndex((country) => country['Alpha-3 code-1'] === d.iso3)];
-          const indicatorData = indicatorMetaData.map((indicator) => ({
-            indicator: indicator.DataKey,
-            value: d[indicator.DataKey] === '' ? undefined : indicator.DataKey === 'first_vaccine_date' ? Math.floor((new Date().getTime() - (parseTime(d[indicator.DataKey]) as Date).getTime()) / (24 * 3600 * 1000)) : +d[indicator.DataKey],
-            labelExtra: d[indicator.DataKey] === '' ? undefined : indicator.DataKey === 'first_vaccine_date' ? d[indicator.DataKey] : indicator.LabelExtra ? d[indicator.LabelExtra] : undefined,
-          }));
-          return { ...countryData, data: indicatorData };
-        }).filter((d) => d !== null);
-        setFinalData(dataFormatted);
-        setCountryList(dataFormatted.map((d) => d['Country or Area']));
-        setRegionList(uniqBy(dataFormatted, (d) => d['Group 2']).map((d) => d['Group 2']));
+        setFinalData(data.filter((d) => d['Alpha-3 code'] !== 'ATA'));
+        setCountryList(data.map((d) => d['Country or Area']));
+        setRegionList(uniqBy(data, (d) => d['Group 2']).map((d) => d['Group 2']));
         setIndicatorsList(indicatorMetaData);
         setLastUpdated(lastUpdate);
       });
