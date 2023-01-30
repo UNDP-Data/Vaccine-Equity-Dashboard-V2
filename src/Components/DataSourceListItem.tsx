@@ -1,5 +1,4 @@
 import { CSVLink } from 'react-csv';
-import styled from 'styled-components';
 import { DataType, IndicatorMetaDataType, LastUpdatedDataType } from '../Types';
 import DownloadExcel from './DownloadExcel';
 
@@ -8,48 +7,6 @@ interface Props {
     lastUpdated: LastUpdatedDataType[];
     data: DataType[];
 }
-
-const TitleEl = styled.div`
-  font-weight: bold;
-  font-size: 1.6rem;
-  color: var(--black-700);
-  margin: 1rem 0;
-  padding: 0 2rem;
-`;
-
-const RowEl = styled.div`
-  display: flex;
-  font-size: 1.4rem;
-  color: var(--black-700);
-  margin: 1rem 0;
-  padding: 0 2rem;
-  line-height: 2rem;
-`;
-
-const FirstColumn = styled.div`
-  width: 15rem; 
-  flex-shrink: 0;
-`;
-
-const DownloadButton = styled.div`
-  border-radius: 0.2rem;
-  font-size: 1.4rem;
-  font-weight: normal;
-  color: var(--black-600);
-  border: 1px solid var(--black-450);
-  cursor: pointer;
-  padding: 0.4rem 1rem;
-  margin: 2rem 0 1rem 0;
-  background-color: var(--white);
-  &:hover {
-    border: 1px solid var(--primary-blue);
-    color: var(--primary-blue);
-  }
-  &:active{
-    border: 1px solid var(--primary-blue);
-    color: var(--primary-blue);
-  }
-`;
 
 const dataTable = (data: DataType[], indicator: IndicatorMetaDataType) => {
   const table: any = [];
@@ -84,13 +41,13 @@ export const DataSourceListItem = (props: Props) => {
 
   return (
     <>
-      <TitleEl>{indicatorData.Indicator}</TitleEl>
-      <RowEl>
-        <FirstColumn>Description</FirstColumn>
+      <h5 className='bold undp-typography' style={{ padding: 'var(--spacing-07)' }}>{indicatorData.Indicator}</h5>
+      <div className='flex-div margin-bottom-07' style={{ padding: '0 var(--spacing-07)' }}>
+        <h6 className='undp-typography margin-top-03' style={{ width: '15%', flexShrink: 0 }}>Description</h6>
         <div>{indicatorData.IndicatorDescription}</div>
-      </RowEl>
-      <RowEl>
-        <FirstColumn>Data By</FirstColumn>
+      </div>
+      <div className='flex-div margin-bottom-07' style={{ padding: '0 var(--spacing-07)' }}>
+        <h6 className='undp-typography margin-top-03' style={{ width: '15%', flexShrink: 0 }}>Data By</h6>
         <div>
           {
             indicatorData.DataSourceName.split(';').map((d, i) => (
@@ -105,9 +62,9 @@ export const DataSourceListItem = (props: Props) => {
             ))
           }
         </div>
-      </RowEl>
-      <RowEl>
-        <FirstColumn>Data Link</FirstColumn>
+      </div>
+      <div className='flex-div margin-bottom-07' style={{ padding: '0 var(--spacing-07)' }}>
+        <h6 className='undp-typography margin-top-03' style={{ width: '15%', flexShrink: 0 }}>Data Link</h6>
         {
           indicatorData.DataSourceLink !== '' && indicatorData.DataSourceLink !== undefined
             ? (
@@ -125,8 +82,8 @@ export const DataSourceListItem = (props: Props) => {
             )
             : <div />
         }
-      </RowEl>
-      <RowEl>
+      </div>
+      <div className='flex-div margin-bottom-07' style={{ padding: '0 var(--spacing-07)' }}>
         <DownloadExcel
           data={dataTableForExcel(data, indicatorData)}
           indicatorTitle={indicatorData.Indicator}
@@ -146,11 +103,11 @@ export const DataSourceListItem = (props: Props) => {
           asyncOnClick
           target='_blank'
         >
-          <DownloadButton>
+          <div className='undp-button button-secondary'>
             Download Data as CSV
-          </DownloadButton>
+          </div>
         </CSVLink>
-      </RowEl>
+      </div>
     </>
   );
 };

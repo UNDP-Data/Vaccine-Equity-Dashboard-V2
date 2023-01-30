@@ -1,7 +1,6 @@
 import {
   useContext, useState,
 } from 'react';
-import styled from 'styled-components';
 import { format } from 'd3-format';
 import maxBy from 'lodash.maxby';
 import orderBy from 'lodash.orderby';
@@ -23,11 +22,6 @@ interface Props {
   data: DataType[];
   indicators: IndicatorMetaDataType[];
 }
-
-const El = styled.div`
-  height: 100%;
-  overflow-y: hidden;
-`;
 
 export const ScatterPlot = (props: Props) => {
   const {
@@ -169,7 +163,11 @@ export const ScatterPlot = (props: Props) => {
   const colorScale = colorIndicator === 'Human development index (HDI)' ? scaleThreshold<string | number, string>().domain(colorDomain).range(COLOR_SCALES.Divergent.Color4).unknown('#666') : scaleOrdinal<string | number, string>().domain(colorDomain).range(colorList).unknown('#666');
 
   return (
-    <El>
+    <div style={{
+      height: '100%',
+      overflowY: 'hidden',
+    }}
+    >
       <svg width='100%' height='100%' viewBox={`0 0 ${svgWidth} ${svgHeight}`}>
         <g
           transform='translate(90,20)'
@@ -488,6 +486,6 @@ export const ScatterPlot = (props: Props) => {
       {
         hoverData ? <Tooltip data={hoverData} /> : null
       }
-    </El>
+    </div>
   );
 };

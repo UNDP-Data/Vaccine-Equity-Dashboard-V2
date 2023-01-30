@@ -17,79 +17,14 @@ interface TooltipElProps {
 const TooltipEl = styled.div<TooltipElProps>`
   display: block;
   position: fixed;
-  z-index: 10;
-  border-radius: 1rem;
-  font-size: 1.4rem;
-  background-color: var(--white);
-  box-shadow: 0 0 1rem rgb(0 0 0 / 15%);
+  z-index: 8;
+  background-color: var(--gray-200);
+  border: 1px solid var(--gray-300);
   word-wrap: break-word;
   top: ${(props) => (props.verticalAlignment === 'bottom' ? props.y - 40 : props.y + 40)}px;
   left: ${(props) => (props.horizontalAlignment === 'left' ? props.x - 20 : props.x + 20)}px;
   max-width: 24rem;
   transform: ${(props) => `translate(${props.horizontalAlignment === 'left' ? '-100%' : '0%'},${props.verticalAlignment === 'top' ? '-100%' : '0%'})`};
-`;
-
-const TooltipTitle = styled.div`
-  font-size: 1.4rem;
-  font-weight: 600;
-  color: var(--navy);  
-  background: var(--yellow);
-  width: 100%;
-  box-sizing: border-box;
-  border-radius: 1rem 1rem 0 0;
-  padding: 1.6rem 4rem 1.6rem 2rem;
-  position: relative;
-  font-weight: 700;
-  font-size: 1.8rem;
-  line-height: 1.8rem;
-`;
-
-const SubNote = styled.span`
-  font-size: 1.2rem;
-  color: var(--navy);
-`;
-
-const TooltipBody = styled.div`
-  width: 100%;
-  box-sizing: border-box;
-  padding: 2rem;
-`;
-
-const RowEl = styled.div`
-  font-size: 1.3rem;
-  color: var(--dark-grey);
-  margin-bottom: 1.5rem;
-  display: flex;
-`;
-
-const RowTitleEl = styled.div`
-  font-weight: 400;
-  font-size: 1.2rem;
-  line-height: 1.2rem;
-  margin-bottom: 0.6rem;
-  color: var(--navy);
-`;
-
-const RowMetaData = styled.div`
-  font-weight: 400;
-  font-size: 1.2rem;
-  line-height: 1.2rem;
-  margin-bottom: 0.6rem;
-  color: var(--navy);
-  opacity: 0.5;
-`;
-
-const RowValue = styled.div`
-  font-weight: 700;
-  font-size: 1.4rem;
-  line-height: 2rem;
-  color: var(--navy);
-`;
-
-const TooltipHead = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
 `;
 
 interface ColorIconProps {
@@ -123,21 +58,27 @@ export const Tooltip = (props: Props) => {
   } = props;
   return (
     <TooltipEl x={data.xPosition} y={data.yPosition} verticalAlignment={data.yPosition > window.innerHeight / 2 ? 'top' : 'bottom'} horizontalAlignment={data.xPosition > window.innerWidth / 2 ? 'left' : 'right'}>
-      <TooltipHead>
-        <TooltipTitle>
+      <div className='flex-div flex-wrap' style={{ padding: 'var(--spacing-05)', alignItems: 'baseline' }}>
+        <h6 className='undp-typography bold margin-bottom-00' style={{ color: 'var(--blue-600)' }}>
           {data.country}
           {' '}
-          <SubNote>
+          <span
+            className='undp-typography'
+            style={{
+              color: 'var(--gray-600)', fontWeight: 'normal', fontSize: '0.875rem', textTransform: 'none',
+            }}
+          >
             (
             {data.continent}
             )
-          </SubNote>
-        </TooltipTitle>
-      </TooltipHead>
-      <TooltipBody>
+          </span>
+        </h6>
+      </div>
+      <hr className='undp-style margin-top-00 margin-bottom-00' />
+      <div style={{ padding: 'var(--spacing-05) var(--spacing-05) 0 var(--spacing-05)' }}>
         {
         data.rows.map((d, i) => (
-          <RowEl key={i}>
+          <div className='flex-div margin-bottom-05' key={i} style={{ gap: '0.5rem', alignItems: 'flex-start' }}>
             <IconDiv>
               {
                 d.type === 'x-axis' ? <HorizontalArrow size={20} />
@@ -148,9 +89,9 @@ export const Tooltip = (props: Props) => {
               }
             </IconDiv>
             <div>
-              <RowMetaData>{d.year}</RowMetaData>
-              <RowTitleEl>{d.title}</RowTitleEl>
-              <RowValue>
+              <p className='undp-typography small-font margin-bottom-00 margin-top-01' style={{ color: 'var(--gray-500)' }}>{d.year}</p>
+              <p className='undp-typography margin-bottom-00'>{d.title}</p>
+              <h6 className='undp-typography margin-bottom-00 bold'>
                 {
                   d.prefix && d.value && d.value !== 'NA' ? `${d.prefix} ` : ''
                 }
@@ -158,15 +99,12 @@ export const Tooltip = (props: Props) => {
                 {
                   d.suffix && d.value && d.value !== 'NA' ? ` ${d.suffix}` : ''
                 }
-                {
-                  d.labelExtra && d.value !== 'NA' ? ` (${d.labelExtra})` : ''
-                }
-              </RowValue>
+              </h6>
             </div>
-          </RowEl>
+          </div>
         ))
       }
-      </TooltipBody>
+      </div>
     </TooltipEl>
   );
 };

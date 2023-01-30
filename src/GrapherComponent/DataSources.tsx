@@ -14,29 +14,21 @@ interface Props {
 
 const El = styled.div`
   width: 75%;
-  box-shadow: var(--shadow-right);
-  height: 74rem;
+  flex-grow: 1;
   overflow: auto;
+  @media (max-width: 960px) {
+    width: 100%;
+    height: auto;
+    min-height: 0;
+  }
 `;
 
 const HeaderEl = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 2rem;
-  font-size: 2rem;
-  font-weight: bold;
+  padding: var(--spacing-07);
   background-color: var(--white);
-  border-bottom: 1px solid var(--black-400);
-  margin-bottom: 2rem;
+  border-bottom: 1px solid var(--gray-400);
   position: sticky;
-  box-shadow: var(--shadow-bottom);
   top: 0;
-`;
-
-const HR = styled.hr`
-  margin: 0 2rem 2rem 2rem;
-  border: 1px solid var(--black-400);
 `;
 
 export const DataSources = (props: Props) => {
@@ -62,12 +54,12 @@ export const DataSources = (props: Props) => {
   const colorIndicatorMetaData = colorIndicator === 'Human Development Index' ? indicators[indicators.findIndex((d) => d.Indicator === 'Human development index (HDI)')] : indicators[indicators.findIndex((d) => d.Indicator === colorIndicator)];
 
   return (
-    <El>
-      <HeaderEl>
-        <div>
+    <El className='undp-scrollbar'>
+      <HeaderEl className='flex-div flex-space-between flex-vert-align-center'>
+        <h4 className='undp-typography margin-bottom-00'>
           Data Description
-        </div>
-        <button className='primary' type='button' onClick={() => { updateShowSource(false); }}>Close</button>
+        </h4>
+        <button className='undp-button button-primary' type='button' onClick={() => { updateShowSource(false); }}>Close</button>
       </HeaderEl>
       <DataSourceListItem
         indicatorData={xIndicatorMetaData}
@@ -77,7 +69,7 @@ export const DataSources = (props: Props) => {
       {
         graphType !== 'barGraph' && yIndicatorMetaData ? (
           <>
-            <HR />
+            <hr className='undp-style' />
             <DataSourceListItem
               indicatorData={yIndicatorMetaData}
               lastUpdated={lastUpdated}
@@ -89,7 +81,7 @@ export const DataSources = (props: Props) => {
       {
         graphType !== 'map' && colorIndicatorMetaData ? (
           <>
-            <HR />
+            <hr className='undp-style' />
             <DataSourceListItem
               indicatorData={colorIndicatorMetaData}
               lastUpdated={lastUpdated}
@@ -101,7 +93,7 @@ export const DataSources = (props: Props) => {
       {
         (graphType === 'scatterPlot' || graphType === 'map') && sizeIndicatorMetaData ? (
           <>
-            <HR />
+            <hr className='undp-style' />
             <DataSourceListItem
               indicatorData={sizeIndicatorMetaData}
               lastUpdated={lastUpdated}

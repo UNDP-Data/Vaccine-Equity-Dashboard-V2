@@ -21,9 +21,11 @@ interface ElProps {
 const El = styled.div<ElProps>`
   width: ${(props) => (props.fullWidth ? '100%' : '75%')};
   box-shadow: var(--shadow-right);
+  flex-grow: 1;
   overflow: auto;
   @media (min-width: 961px) {
-    height: 74rem;
+    height: calc(100vh - 12rem);
+    min-height: calc(46.25rem + 4rem);
   }
   @media (max-width: 960px) {
     width: 100%;
@@ -42,7 +44,11 @@ export const Graph = (props: Props) => {
     verticalBarLayout,
   } = useContext(Context) as CtxDataType;
   return (
-    <El id='graph-node' fullWidth={fullWidth}>
+    <El
+      id='graph-node'
+      fullWidth={fullWidth}
+      className='undp-scrollbar'
+    >
       {
         graphType === 'scatterPlot'
           ? yAxisIndicator

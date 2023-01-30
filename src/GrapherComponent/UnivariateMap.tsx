@@ -21,28 +21,20 @@ interface Props {
   indicators: IndicatorMetaDataType[];
 }
 
-const El = styled.div`
-  height: 100%;
-  overflow-y: hidden;
-`;
-
 const LegendEl = styled.div`
-  padding: 1rem 1rem 0 1rem;
-  background-color:rgba(255,255,255,0.1);
-  box-shadow: var(--shadow);
-  width: 32rem;
-  margin-left: 1rem;
-  margin-top: -2rem;
+  padding: 0.75rem 0.75rem 0 0.75rem;
+  background-color: rgba(255,255,255, 0.75);
+  width: 20rem;
+  margin-left: 0.75rem;
+  margin-top: -1.25rem;
   position: relative;
-  z-index: 1000;
+  z-index: 5;
   @media (min-width: 961px) {
     transform: translateY(-100%);
   }
 `;
 
-const TitleEl = styled.div`
-  font-size: 1.2rem;
-  font-weight: bold;
+const TitleEl = styled.h6`
   width: 100%;
   white-space: nowrap;
   overflow: hidden;
@@ -95,7 +87,11 @@ export const UnivariateMap = (props: Props) => {
     mapSvgSelect.call(zoomBehaviour as any);
   }, [svgHeight, svgWidth]);
   return (
-    <El>
+    <div style={{
+      height: '100%',
+      overflowY: 'hidden',
+    }}
+    >
       <svg width='100%' height='100%' viewBox={`0 0 ${svgWidth} ${svgHeight}`} ref={mapSvg}>
         <g ref={mapG}>
           {
@@ -422,7 +418,7 @@ export const UnivariateMap = (props: Props) => {
             )
             : null
         }
-        <TitleEl>{xIndicatorMetaData.Indicator}</TitleEl>
+        <TitleEl className='undp-typography margin-bottom-03'>{xIndicatorMetaData.Indicator}</TitleEl>
         <svg width='100%' viewBox={`0 0 ${320} ${30}`}>
           <g>
             {
@@ -481,6 +477,6 @@ export const UnivariateMap = (props: Props) => {
       {
         hoverData ? <Tooltip data={hoverData} /> : null
       }
-    </El>
+    </div>
   );
 };
