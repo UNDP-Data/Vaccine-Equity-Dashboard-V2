@@ -1,5 +1,4 @@
 import { useContext, useEffect, useState } from 'react';
-import styled from 'styled-components';
 import { Select, Radio, Checkbox } from 'antd';
 import domtoimage from 'dom-to-image';
 import { CtxDataType, IndicatorMetaDataType } from '../Types';
@@ -14,41 +13,6 @@ interface Props {
   regions: string[];
   countries: string[];
 }
-
-const El = styled.div`
-  width: 25%;
-  max-width: 30rem;
-  height: calc(100vh - 12rem);
-  min-height: 46.25rem;
-  padding: var(--spacing-07);
-  border-right: 1px solid var(--gray-400);
-  overflow: auto;
-  background-color: var(--white);
-  @media (max-width: 960px) {
-    width: calc(100% - 12rem);
-    max-width: 960px;
-    border-right: 0px solid var(--gray-400);
-    border-bottom: 1px solid var(--gray-400);
-    padding-bottom: 0;
-    height: auto;
-    min-height: 0;
-  }  
-`;
-
-const FiltersEl = styled.div`
-  padding: 1rem 0 0 0;
-  border-top: 1px solid var(--black-400);
-  @media (max-width: 960px) {
-    padding: 2rem 0;
-  }  
-`;
-
-const FilterTitle = styled.button`
-  background-color: transparent;
-  border: 0;
-  cursor: pointer;
-  padding: 0;
-`;
 
 export const Settings = (props: Props) => {
   const {
@@ -120,254 +84,258 @@ export const Settings = (props: Props) => {
     }
   }, [graphType]);
   return (
-    <El className='undp-scrollbar'>
-      <div>
-        <p className='label'>
+    <div className='undp-scrollbar settings-container'>
+      <div className='settings-sections-container'>
+        <div className='settings-sections-options-container'>
+          <div className='settings-option-div'>
+            <p className='label'>
+              {
+                graphType === 'scatterPlot'
+                  ? 'X-Axis'
+                  : graphType === 'map'
+                    ? 'Primary Indicator to color region'
+                    : 'Primary Indicator'
+              }
+            </p>
+            <Select
+              showSearch
+              className='undp-select'
+              placeholder='Please select'
+              maxTagCount='responsive'
+              value={xAxisIndicator}
+              onChange={(d) => { updateXAxisIndicator(d); }}
+              defaultValue={DEFAULT_VALUES.firstMetric}
+            >
+              <Select.OptGroup label='Accessibility'>
+                {
+                  optionsAcc.map((d) => (
+                    <Select.Option className='undp-select-option' key={d}>{d}</Select.Option>
+                  ))
+                }
+              </Select.OptGroup>
+              <Select.OptGroup label='Affordability'>
+                {
+                  optionsAfor.map((d) => (
+                    <Select.Option className='undp-select-option' key={d}>{d}</Select.Option>
+                  ))
+                }
+              </Select.OptGroup>
+              <Select.OptGroup label='Common'>
+                {
+                  options.map((d) => (
+                    <Select.Option className='undp-select-option' key={d}>{d}</Select.Option>
+                  ))
+                }
+              </Select.OptGroup>
+            </Select>
+          </div>
           {
-      graphType === 'scatterPlot'
-        ? 'X-Axis'
-        : graphType === 'map'
-          ? 'Primary Indicator to color region'
-          : 'Primary Indicator'
-    }
-        </p>
-        <Select
-          showSearch
-          className='undp-select'
-          placeholder='Please select'
-          value={xAxisIndicator}
-          onChange={(d) => { updateXAxisIndicator(d); }}
-          defaultValue={DEFAULT_VALUES.firstMetric}
-        >
-          <Select.OptGroup label='Accessibility'>
-            {
-              optionsAcc.map((d) => (
-                <Select.Option className='undp-select-option' key={d}>{d}</Select.Option>
-              ))
-            }
-          </Select.OptGroup>
-          <Select.OptGroup label='Affordability'>
-            {
-              optionsAfor.map((d) => (
-                <Select.Option className='undp-select-option' key={d}>{d}</Select.Option>
-              ))
-            }
-          </Select.OptGroup>
-          <Select.OptGroup label='Common'>
-            {
-              options.map((d) => (
-                <Select.Option className='undp-select-option' key={d}>{d}</Select.Option>
-              ))
-            }
-          </Select.OptGroup>
-        </Select>
-      </div>
-      {
-        graphType === 'scatterPlot'
-          ? (
-            <div className='margin-top-07'>
-              <p className='label'>
-                Y-Axis
-              </p>
-              <Select
-                showSearch
-                style={{ width: '100%' }}
-                value={yAxisIndicator}
-                className='undp-select'
-                placeholder='Please select'
-                onChange={(d) => { updateYAxisIndicator(d); }}
-                defaultValue={DEFAULT_VALUES.secondMetric}
-                listHeight={400}
-              >
-                <Select.OptGroup label='Accessibility'>
-                  {
-                    optionsAcc.map((d) => (
-                      <Select.Option className='undp-select-option' key={d}>{d}</Select.Option>
-                    ))
-                  }
-                </Select.OptGroup>
-                <Select.OptGroup label='Affordability'>
-                  {
-                    optionsAfor.map((d) => (
-                      <Select.Option className='undp-select-option' key={d}>{d}</Select.Option>
-                    ))
-                  }
-                </Select.OptGroup>
-                <Select.OptGroup label='Common'>
-                  {
-                    options.map((d) => (
-                      <Select.Option className='undp-select-option' key={d}>{d}</Select.Option>
-                    ))
-                  }
-                </Select.OptGroup>
-              </Select>
-            </div>
-          ) : graphType === 'map' ? (
-            <div className='margin-top-07'>
-              <p className='label'>
-                Secondary Indicator (optional)
-              </p>
-              <Select
-                showSearch
-                allowClear
-                clearIcon={<div className='clearIcon' />}
-                style={{ width: '100%' }}
-                className='undp-select'
-                value={yAxisIndicator}
-                placeholder='Please select'
-                onChange={(d) => { updateYAxisIndicator(d); }}
-                defaultValue={DEFAULT_VALUES.secondMetric}
-                listHeight={400}
-              >
-                <Select.OptGroup label='Accessibility'>
-                  {
-                    optionsAcc.map((d) => (
-                      <Select.Option className='undp-select-option' key={d}>{d}</Select.Option>
-                    ))
-                  }
-                </Select.OptGroup>
-                <Select.OptGroup label='Affordability'>
-                  {
-                    optionsAfor.map((d) => (
-                      <Select.Option className='undp-select-option' key={d}>{d}</Select.Option>
-                    ))
-                  }
-                </Select.OptGroup>
-                <Select.OptGroup label='Common'>
-                  {
-                    options.map((d) => (
-                      <Select.Option className='undp-select-option' key={d}>{d}</Select.Option>
-                    ))
-                  }
-                </Select.OptGroup>
-              </Select>
-            </div>
-          ) : null
-      }
-      {
-        graphType === 'map' || graphType === 'scatterPlot' ? (
-          <div className='margin-top-07'>
-            <p className='label'>
-              {graphType === 'map' ? 'Choose an indicator to overlay' : 'Size By'}
-              {' '}
-              (optional)
-            </p>
-            <Select
-              allowClear
-              clearIcon={<div className='clearIcon' />}
-              showSearch
-              style={{ width: '100%' }}
-              className='undp-select'
-              placeholder='Size By'
-              onChange={(d) => { updateSizeIndicator(d); }}
-              listHeight={400}
+            graphType === 'scatterPlot'
+              ? (
+                <div className='settings-option-div'>
+                  <p className='label'>
+                    Y-Axis
+                  </p>
+                  <Select
+                    showSearch
+                    style={{ width: '100%' }}
+                    value={yAxisIndicator}
+                    className='undp-select'
+                    placeholder='Please select'
+                    onChange={(d) => { updateYAxisIndicator(d); }}
+                    defaultValue={DEFAULT_VALUES.secondMetric}
+                    listHeight={400}
+                  >
+                    <Select.OptGroup label='Accessibility'>
+                      {
+                        optionsAcc.map((d) => (
+                          <Select.Option className='undp-select-option' key={d}>{d}</Select.Option>
+                        ))
+                      }
+                    </Select.OptGroup>
+                    <Select.OptGroup label='Affordability'>
+                      {
+                        optionsAfor.map((d) => (
+                          <Select.Option className='undp-select-option' key={d}>{d}</Select.Option>
+                        ))
+                      }
+                    </Select.OptGroup>
+                    <Select.OptGroup label='Common'>
+                      {
+                        options.map((d) => (
+                          <Select.Option className='undp-select-option' key={d}>{d}</Select.Option>
+                        ))
+                      }
+                    </Select.OptGroup>
+                  </Select>
+                </div>
+              ) : graphType === 'map' ? (
+                <div className='settings-option-div'>
+                  <p className='label'>
+                    Secondary Indicator (optional)
+                  </p>
+                  <Select
+                    showSearch
+                    allowClear
+                    clearIcon={<div className='clearIcon' />}
+                    style={{ width: '100%' }}
+                    className='undp-select'
+                    value={yAxisIndicator}
+                    placeholder='Please select'
+                    onChange={(d) => { updateYAxisIndicator(d); }}
+                    defaultValue={DEFAULT_VALUES.secondMetric}
+                    listHeight={400}
+                  >
+                    <Select.OptGroup label='Accessibility'>
+                      {
+                          optionsAcc.map((d) => (
+                            <Select.Option className='undp-select-option' key={d}>{d}</Select.Option>
+                          ))
+                        }
+                    </Select.OptGroup>
+                    <Select.OptGroup label='Affordability'>
+                      {
+                          optionsAfor.map((d) => (
+                            <Select.Option className='undp-select-option' key={d}>{d}</Select.Option>
+                          ))
+                        }
+                    </Select.OptGroup>
+                    <Select.OptGroup label='Common'>
+                      {
+                          options.map((d) => (
+                            <Select.Option className='undp-select-option' key={d}>{d}</Select.Option>
+                          ))
+                        }
+                    </Select.OptGroup>
+                  </Select>
+                </div>
+              ) : null
+          }
+          {
+            graphType === 'map' || graphType === 'scatterPlot' ? (
+              <div className='settings-option-div'>
+                <p className='label'>
+                  {graphType === 'map' ? 'Choose an indicator to overlay' : 'Size By'}
+                  {' '}
+                  (optional)
+                </p>
+                <Select
+                  allowClear
+                  clearIcon={<div className='clearIcon' />}
+                  showSearch
+                  style={{ width: '100%' }}
+                  className='undp-select'
+                  placeholder='Size By'
+                  onChange={(d) => { updateSizeIndicator(d); }}
+                  listHeight={400}
+                >
+                  <Select.OptGroup label='Accessibility'>
+                    {
+                      sizeOptionsAcc.map((d) => (
+                        <Select.Option className='undp-select-option' key={d}>{d}</Select.Option>
+                      ))
+                    }
+                  </Select.OptGroup>
+                  <Select.OptGroup label='Affordability'>
+                    {
+                      sizeOptionsAfor.map((d) => (
+                        <Select.Option className='undp-select-option' key={d}>{d}</Select.Option>
+                      ))
+                    }
+                  </Select.OptGroup>
+                  <Select.OptGroup label='Common'>
+                    {
+                      sizeOptions.map((d) => (
+                        <Select.Option className='undp-select-option' key={d}>{d}</Select.Option>
+                      ))
+                    }
+                  </Select.OptGroup>
+                </Select>
+              </div>
+            ) : null
+          }
+          {
+            graphType === 'barGraph' || graphType === 'scatterPlot' ? (
+              <div className='settings-option-div'>
+                <p className='label'>
+                  Color By
+                </p>
+                <Select
+                  showSearch
+                  style={{ width: '100%' }}
+                  placeholder='Color By'
+                  className='undp-select'
+                  onChange={(d) => { updateColorIndicator(d); }}
+                  defaultValue={DEFAULT_VALUES.colorMetric}
+                >
+                  <Select.OptGroup label='Accessibility'>
+                    {
+                      colorOptionsAcc.map((d) => (
+                        <Select.Option className='undp-select-option' key={d}>{d}</Select.Option>
+                      ))
+                    }
+                  </Select.OptGroup>
+                  <Select.OptGroup label='Affordability'>
+                    {
+                      colorOptionsAfor.map((d) => (
+                        <Select.Option className='undp-select-option' key={d}>{d}</Select.Option>
+                      ))
+                    }
+                  </Select.OptGroup>
+                  <Select.OptGroup label='Common'>
+                    {
+                      colorOptions.map((d) => (
+                        <Select.Option className='undp-select-option' key={d}>{d}</Select.Option>
+                      ))
+                    }
+                  </Select.OptGroup>
+                </Select>
+              </div>
+            ) : null
+          }
+          <div className='flex-div flex-wrap'>
+            <button className='undp-button button-primary' type='button' onClick={() => { updateShowSource(true); }}>Download Data</button>
+            <button
+              className='undp-button button-secondary'
+              type='button'
+              onClick={() => {
+                const node = document.getElementById('graph-node') as HTMLElement;
+                domtoimage
+                  .toPng(node, { height: node.scrollHeight })
+                  .then((dataUrl: any) => {
+                    const link = document.createElement('a');
+                    link.download = 'graph.png';
+                    link.href = dataUrl;
+                    link.click();
+                  });
+              }}
             >
-              <Select.OptGroup label='Accessibility'>
-                {
-                  sizeOptionsAcc.map((d) => (
-                    <Select.Option className='undp-select-option' key={d}>{d}</Select.Option>
-                  ))
-                }
-              </Select.OptGroup>
-              <Select.OptGroup label='Affordability'>
-                {
-                  sizeOptionsAfor.map((d) => (
-                    <Select.Option className='undp-select-option' key={d}>{d}</Select.Option>
-                  ))
-                }
-              </Select.OptGroup>
-              <Select.OptGroup label='Common'>
-                {
-                  sizeOptions.map((d) => (
-                    <Select.Option className='undp-select-option' key={d}>{d}</Select.Option>
-                  ))
-                }
-              </Select.OptGroup>
-            </Select>
+              Download Graph
+            </button>
           </div>
-        ) : null
-      }
-      {
-        graphType === 'barGraph' || graphType === 'scatterPlot' ? (
-          <div className='margin-top-07'>
-            <p className='label'>
-              Color By
-            </p>
-            <Select
-              showSearch
-              style={{ width: '100%' }}
-              placeholder='Color By'
-              className='undp-select'
-              onChange={(d) => { updateColorIndicator(d); }}
-              defaultValue={DEFAULT_VALUES.colorMetric}
-            >
-              <Select.OptGroup label='Accessibility'>
-                {
-                  colorOptionsAcc.map((d) => (
-                    <Select.Option className='undp-select-option' key={d}>{d}</Select.Option>
-                  ))
-                }
-              </Select.OptGroup>
-              <Select.OptGroup label='Affordability'>
-                {
-                  colorOptionsAfor.map((d) => (
-                    <Select.Option className='undp-select-option' key={d}>{d}</Select.Option>
-                  ))
-                }
-              </Select.OptGroup>
-              <Select.OptGroup label='Common'>
-                {
-                  colorOptions.map((d) => (
-                    <Select.Option className='undp-select-option' key={d}>{d}</Select.Option>
-                  ))
-                }
-              </Select.OptGroup>
-            </Select>
-          </div>
-        ) : null
-      }
-      <div className='flex-div flex-wrap margin-top-07'>
-        <button className='undp-button button-primary' type='button' onClick={() => { updateShowSource(true); }}>Data Description & Download</button>
-        <button
-          className='undp-button button-secondary'
-          type='button'
-          onClick={() => {
-            const node = document.getElementById('graph-node') as HTMLElement;
-            domtoimage
-              .toPng(node, { height: node.scrollHeight })
-              .then((dataUrl: any) => {
-                const link = document.createElement('a');
-                link.download = 'graph.png';
-                link.href = dataUrl;
-                link.click();
-              });
-          }}
-        >
-          Download Graph
-        </button>
+        </div>
       </div>
       {
         graphType !== 'map' ? (
           <>
-            <hr className='undp-style margin-top-07' />
-            <FiltersEl>
-              <FilterTitle className='flex-div flex-vert-align-center margin-bottom-06' style={{ gap: '0.25rem' }} onClick={() => { setSettingsExpanded(!settingExpanded); }}>
+            <div className='settings-sections-container'>
+              <button type='button' aria-label='Expand or collapse settings' className='settings-sections-container-title' onClick={() => { setSettingsExpanded(!settingExpanded); }}>
                 <div>
                   {
                     settingExpanded
-                      ? <ChevronDown fill='#212121' size={24} /> : <ChevronLeft fill='#212121' size={24} />
+                      ? <ChevronDown fill='#212121' size={18} /> : <ChevronLeft fill='#212121' size={18} />
                   }
                 </div>
-                <h5 className='undp-typography bold margin-bottom-00'>
+                <h6 className='undp-typography margin-bottom-00'>
                   Settings
                   {' '}
                   &
                   {' '}
                   Options
-                </h5>
-              </FilterTitle>
-              <div className='flex-wrap' style={{ display: settingExpanded ? 'flex' : 'none', gap: '1rem' }}>
-                <div className='flex-div flex-wrap'>
+                </h6>
+              </button>
+              <div className='settings-sections-options-container' style={{ display: settingExpanded ? 'flex' : 'none' }}>
+                <>
                   {
                     graphType === 'scatterPlot'
                       ? (
@@ -385,28 +353,27 @@ export const Settings = (props: Props) => {
                       )
                       : null
                   }
-                </div>
+                </>
               </div>
-            </FiltersEl>
+            </div>
           </>
         )
           : null
       }
-      <hr className='undp-style margin-top-07' />
-      <FiltersEl>
-        <FilterTitle className='flex-div flex-vert-align-center margin-bottom-05' style={{ gap: '0.25rem' }} onClick={() => { setFilterExpanded(!filterExpanded); }}>
+      <div className='settings-sections-container'>
+        <button type='button' aria-label='Expand or collapse filters' className='settings-sections-container-title' onClick={() => { setFilterExpanded(!filterExpanded); }}>
           <div>
             {
               filterExpanded
                 ? <ChevronDown fill='#212121' size={24} /> : <ChevronLeft fill='#212121' size={24} />
             }
           </div>
-          <h5 className='undp-typography bold margin-bottom-00'>
+          <h6 className='undp-typography margin-bottom-00'>
             Filter or Highlight By
-          </h5>
-        </FilterTitle>
-        <div style={{ display: filterExpanded ? 'inline' : 'none' }}>
-          <div className='margin-top-03'>
+          </h6>
+        </button>
+        <div className='settings-sections-options-container' style={{ display: filterExpanded ? 'flex' : 'none' }}>
+          <div className='settings-option-div'>
             <p className='label'>
               Region
             </p>
@@ -422,13 +389,13 @@ export const Settings = (props: Props) => {
               onChange={(d: string[]) => { updateSelectedRegions(d); }}
             >
               {
-                    regions.map((d) => (
-                      <Select.Option className='undp-select-option' key={d}>{d}</Select.Option>
-                    ))
-                  }
+                regions.map((d) => (
+                  <Select.Option className='undp-select-option' key={d}>{d}</Select.Option>
+                ))
+              }
             </Select>
           </div>
-          <div className='margin-top-05'>
+          <div className='settings-option-div'>
             <p className='label'>
               Income Group
             </p>
@@ -450,7 +417,7 @@ export const Settings = (props: Props) => {
               }
             </Select>
           </div>
-          <div className='margin-top-05'>
+          <div className='settings-option-div'>
             <p className='label'>
               Country Groups
             </p>
@@ -461,7 +428,7 @@ export const Settings = (props: Props) => {
               <Radio className='undp-radio' value='SIDS'>SIDS</Radio>
             </Radio.Group>
           </div>
-          <div className='margin-top-05'>
+          <div className='settings-option-div'>
             <p className='label'>
               Countries
             </p>
@@ -484,7 +451,7 @@ export const Settings = (props: Props) => {
             </Select>
           </div>
         </div>
-      </FiltersEl>
-    </El>
+      </div>
+    </div>
   );
 };

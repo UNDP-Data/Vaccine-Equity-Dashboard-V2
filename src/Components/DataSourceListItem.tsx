@@ -3,9 +3,9 @@ import { DataType, IndicatorMetaDataType, LastUpdatedDataType } from '../Types';
 import DownloadExcel from './DownloadExcel';
 
 interface Props {
-    indicatorData: IndicatorMetaDataType;
-    lastUpdated: LastUpdatedDataType[];
-    data: DataType[];
+  indicatorData: IndicatorMetaDataType;
+  lastUpdated: LastUpdatedDataType[];
+  data: DataType[];
 }
 
 const dataTable = (data: DataType[], indicator: IndicatorMetaDataType) => {
@@ -40,14 +40,14 @@ export const DataSourceListItem = (props: Props) => {
   } = props;
 
   return (
-    <>
-      <h5 className='bold undp-typography' style={{ padding: 'var(--spacing-07)' }}>{indicatorData.Indicator}</h5>
-      <div className='flex-div margin-bottom-07' style={{ padding: '0 var(--spacing-07)' }}>
-        <h6 className='undp-typography margin-top-03' style={{ width: '15%', flexShrink: 0 }}>Description</h6>
+    <div className='padding-top-07 padding-bottom-05'>
+      <h5 className='bold undp-typography'>{indicatorData.Indicator}</h5>
+      <div className='flex-div margin-bottom-07' style={{ alignItems: 'baseline' }}>
+        <h6 className='undp-typography margin-top-00 margin-bottom-00' style={{ width: '15%', flexShrink: 0 }}>Description</h6>
         <div>{indicatorData.IndicatorDescription}</div>
       </div>
-      <div className='flex-div margin-bottom-07' style={{ padding: '0 var(--spacing-07)' }}>
-        <h6 className='undp-typography margin-top-03' style={{ width: '15%', flexShrink: 0 }}>Data By</h6>
+      <div className='flex-div margin-bottom-07' style={{ alignItems: 'baseline' }}>
+        <h6 className='undp-typography margin-top-00 margin-bottom-00' style={{ width: '15%', flexShrink: 0 }}>Data By</h6>
         <div>
           {
             indicatorData.DataSourceName.split(';').map((d, i) => (
@@ -63,8 +63,8 @@ export const DataSourceListItem = (props: Props) => {
           }
         </div>
       </div>
-      <div className='flex-div margin-bottom-07' style={{ padding: '0 var(--spacing-07)' }}>
-        <h6 className='undp-typography margin-top-03' style={{ width: '15%', flexShrink: 0 }}>Data Link</h6>
+      <div className='flex-div margin-bottom-07' style={{ alignItems: 'baseline' }}>
+        <h6 className='undp-typography margin-top-00 margin-bottom-00' style={{ width: '15%', flexShrink: 0 }}>Data Link</h6>
         {
           indicatorData.DataSourceLink !== '' && indicatorData.DataSourceLink !== undefined
             ? (
@@ -83,7 +83,7 @@ export const DataSourceListItem = (props: Props) => {
             : <div />
         }
       </div>
-      <div className='flex-div margin-bottom-07' style={{ padding: '0 var(--spacing-07)' }}>
+      <div className='flex-div margin-bottom-00 gap-07'>
         <DownloadExcel
           data={dataTableForExcel(data, indicatorData)}
           indicatorTitle={indicatorData.Indicator}
@@ -103,11 +103,11 @@ export const DataSourceListItem = (props: Props) => {
           asyncOnClick
           target='_blank'
         >
-          <div className='undp-button button-secondary'>
+          <div className='undp-button button-tertiary button-arrow'>
             Download Data as CSV
           </div>
         </CSVLink>
       </div>
-    </>
+    </div>
   );
 };

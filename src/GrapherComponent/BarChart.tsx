@@ -145,13 +145,7 @@ export const BarChart = (props: Props) => {
   const colorScale = colorIndicator === 'Human development index (HDI)' ? scaleThreshold<string | number, string>().domain(colorDomain).range(COLOR_SCALES.Divergent.Color4).unknown('#666') : scaleOrdinal<string | number, string>().domain(colorDomain).range(colorList).unknown('#666');
 
   return (
-    <div
-      className='undp-scrollbar'
-      style={{
-        height: '100%',
-        overflowY: 'hidden',
-      }}
-    >
+    <>
       <svg width='100%' height='100%' viewBox={`0 0 ${svgWidth} ${svgHeight}`}>
         <g
           transform='translate(90,20)'
@@ -410,6 +404,6 @@ export const BarChart = (props: Props) => {
       {
         hoverData ? <Tooltip data={hoverData} /> : null
       }
-    </div>
+    </>
   );
 };

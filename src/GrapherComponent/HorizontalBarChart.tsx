@@ -143,7 +143,7 @@ export const HorizontalBarChart = (props: Props) => {
   const colorScale = colorIndicator === 'Human development index (HDI)' ? scaleThreshold<string | number, string>().domain(colorDomain).range(COLOR_SCALES.Divergent.Color4).unknown('#666') : scaleOrdinal<string | number, string>().domain(colorDomain).range(colorList).unknown('#666');
 
   return (
-    <div className='undp-scrollbar' style={{ height: '100%' }}>
+    <div className='undp-scrollbar'>
       <svg width='100%' viewBox={`0 0 ${svgWidth} ${svgHeight}`}>
         <text
           x={25}
