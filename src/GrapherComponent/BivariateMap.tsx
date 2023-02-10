@@ -7,6 +7,7 @@ import { zoom } from 'd3-zoom';
 import { format } from 'd3-format';
 import { select } from 'd3-selection';
 import maxBy from 'lodash.maxby';
+import UNDPColorModule from 'undp-viz-colors';
 import {
   scaleThreshold, scaleOrdinal, scaleSqrt,
 } from 'd3-scale';
@@ -15,7 +16,7 @@ import {
 } from '../Types';
 import Context from '../Context/Context';
 import World from '../Data/worldMap.json';
-import { COLOR_SCALES, LABEL_EXTRA } from '../Constants';
+import { LABEL_EXTRA } from '../Constants';
 import { Tooltip } from '../Components/Tooltip';
 
 interface Props {
@@ -125,7 +126,7 @@ export const BivariateMap = (props: Props) => {
                         d={masterPath}
                         stroke='#AAA'
                         strokeWidth={0.25}
-                        fill={COLOR_SCALES.Null}
+                        fill={UNDPColorModule.graphNoData}
                       />
                     );
                   }) : d.geometry.coordinates.map((el:any, j: number) => {
@@ -141,7 +142,7 @@ export const BivariateMap = (props: Props) => {
                         d={path}
                         stroke='#AAA'
                         strokeWidth={0.25}
-                        fill={COLOR_SCALES.Null}
+                        fill={UNDPColorModule.graphNoData}
                       />
                     );
                   })
@@ -160,7 +161,7 @@ export const BivariateMap = (props: Props) => {
               const xColorCoord = xVal !== undefined && xVal !== null ? xScale(xIndicatorMetaData.IsCategorical ? Math.floor(xVal) : xVal) : undefined;
               const yColorCoord = yVal !== undefined && yVal !== null ? yScale(yIndicatorMetaData.IsCategorical ? Math.floor(yVal) : yVal) : undefined;
 
-              const color = xColorCoord !== undefined && yColorCoord !== undefined && xColorCoord !== null && yColorCoord !== null ? COLOR_SCALES.Bivariate[yColorCoord][xColorCoord] : COLOR_SCALES.Null;
+              const color = xColorCoord !== undefined && yColorCoord !== undefined && xColorCoord !== null && yColorCoord !== null ? UNDPColorModule.bivariateColors.colors05x05[yColorCoord][xColorCoord] : UNDPColorModule.graphNoData;
 
               const regionOpacity = selectedRegions.length === 0 || selectedRegions.indexOf(d['Group 2']) !== -1;
               const incomeGroupOpacity = selectedIncomeGroups.length === 0 || selectedIncomeGroups.indexOf(d['Income group']) !== -1;
@@ -254,7 +255,7 @@ export const BivariateMap = (props: Props) => {
                           <path
                             key={j}
                             d={masterPath}
-                            stroke={color === COLOR_SCALES.Null ? '#AAA' : '#FFF'}
+                            stroke={color === UNDPColorModule.graphNoData ? '#AAA' : '#FFF'}
                             strokeWidth={0.25}
                             fill={color}
                           />
@@ -270,7 +271,7 @@ export const BivariateMap = (props: Props) => {
                           <path
                             key={j}
                             d={path}
-                            stroke={color === COLOR_SCALES.Null ? '#AAA' : '#FFF'}
+                            stroke={color === UNDPColorModule.graphNoData ? '#AAA' : '#FFF'}
                             strokeWidth={0.25}
                             fill={color}
                           />
@@ -308,7 +309,7 @@ export const BivariateMap = (props: Props) => {
                           opacity={1}
                           strokeWidth={1}
                           fillOpacity={0}
-                          fill={COLOR_SCALES.Null}
+                          fill={UNDPColorModule.graphNoData}
                         />
                       );
                     }) : d.geometry.coordinates.map((el:any, j: number) => {
@@ -349,7 +350,7 @@ export const BivariateMap = (props: Props) => {
                     const xColorCoord = xVal !== undefined && xVal !== null ? xScale(xIndicatorMetaData.IsCategorical ? Math.floor(xVal) : xVal) : undefined;
                     const yColorCoord = yVal !== undefined && yVal !== null ? yScale(yIndicatorMetaData.IsCategorical ? Math.floor(yVal) : yVal) : undefined;
 
-                    const color = xColorCoord !== undefined && yColorCoord !== undefined && xColorCoord !== null && yColorCoord !== null ? COLOR_SCALES.Bivariate[yColorCoord][xColorCoord] : COLOR_SCALES.Null;
+                    const color = xColorCoord !== undefined && yColorCoord !== undefined && xColorCoord !== null && yColorCoord !== null ? UNDPColorModule.bivariateColors.colors05x05[yColorCoord][xColorCoord] : UNDPColorModule.graphNoData;
 
                     const regionOpacity = selectedRegions.length === 0 || selectedRegions.indexOf(d['Group 2']) !== -1;
                     const incomeGroupOpacity = selectedIncomeGroups.length === 0 || selectedIncomeGroups.indexOf(d['Income group']) !== -1;
@@ -441,48 +442,48 @@ export const BivariateMap = (props: Props) => {
                 <svg width='135px' viewBox={`0 0 ${135} ${135}`}>
                   <g>
                     {
-                    COLOR_SCALES.Bivariate.map((d, i) => (
-                      <g
-                        key={i}
-                        transform={`translate(0,${100 - (i * 25)})`}
-                      >
-                        {
-                          d.map((el, j) => (
-                            <rect
-                              key={j}
-                              y={1}
-                              x={(j * 25) + 1}
-                              fill={el}
-                              width={23}
-                              height={23}
-                              strokeWidth={2}
-                              stroke={selectedColor === el ? '#212121' : el}
-                              style={{ cursor: 'pointer' }}
-                              onMouseOver={() => { setSelectedColor(el); }}
-                              onMouseLeave={() => { setSelectedColor(undefined); }}
-                            />
-                          ))
-                        }
-                      </g>
-                    ))
-                  }
+                      UNDPColorModule.bivariateColors.colors05x05.map((d, i) => (
+                        <g
+                          key={i}
+                          transform={`translate(0,${100 - (i * 25)})`}
+                        >
+                          {
+                            d.map((el, j) => (
+                              <rect
+                                key={j}
+                                y={1}
+                                x={(j * 25) + 1}
+                                fill={el}
+                                width={23}
+                                height={23}
+                                strokeWidth={2}
+                                stroke={selectedColor === el ? '#212121' : el}
+                                style={{ cursor: 'pointer' }}
+                                onMouseOver={() => { setSelectedColor(el); }}
+                                onMouseLeave={() => { setSelectedColor(undefined); }}
+                              />
+                            ))
+                          }
+                        </g>
+                      ))
+                    }
                     <g
                       transform='translate(0,125)'
                     >
                       {
-                      xKey.map((el, j) => (
-                        <text
-                          key={j}
-                          y={10}
-                          x={xKey.length === 5 ? (j * 25) + 12.5 : (j + 1) * 25}
-                          fill='#212121'
-                          fontSize={10}
-                          textAnchor='middle'
-                        >
-                          {typeof el === 'string' || el < 1 ? el : format('~s')(el)}
-                        </text>
-                      ))
-                    }
+                        xKey.map((el, j) => (
+                          <text
+                            key={j}
+                            y={10}
+                            x={xKey.length === 5 ? (j * 25) + 12.5 : (j + 1) * 25}
+                            fill='#212121'
+                            fontSize={10}
+                            textAnchor='middle'
+                          >
+                            {typeof el === 'string' || el < 1 ? el : format('~s')(el)}
+                          </text>
+                        ))
+                      }
                     </g>
                     {
                       yKey.map((el, j) => (

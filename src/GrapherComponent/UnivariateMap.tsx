@@ -6,6 +6,7 @@ import { geoEqualEarth } from 'd3-geo';
 import { zoom } from 'd3-zoom';
 import { format } from 'd3-format';
 import { select } from 'd3-selection';
+import UNDPColorModule from 'undp-viz-colors';
 import maxBy from 'lodash.maxby';
 import { scaleThreshold, scaleOrdinal, scaleSqrt } from 'd3-scale';
 import {
@@ -13,7 +14,7 @@ import {
 } from '../Types';
 import Context from '../Context/Context';
 import World from '../Data/worldMap.json';
-import { COLOR_SCALES, LABEL_EXTRA } from '../Constants';
+import { LABEL_EXTRA } from '../Constants';
 import { Tooltip } from '../Components/Tooltip';
 
 interface Props {
@@ -49,7 +50,7 @@ export const UnivariateMap = (props: Props) => {
   const xIndicatorMetaData = indicators[indicators.findIndex((indicator) => indicator.Indicator === xAxisIndicator)];
   const sizeIndicatorMetaData = indicators[indicators.findIndex((indicator) => indicator.Indicator === sizeIndicator)];
   const valueArray = xIndicatorMetaData.IsCategorical ? xIndicatorMetaData.Categories : xIndicatorMetaData.BinningRangeLarge.length === 0 ? xIndicatorMetaData.BinningRange5 : xIndicatorMetaData.BinningRangeLarge;
-  const colorArray = xIndicatorMetaData.IsDivergent ? COLOR_SCALES.Divergent[`Color${(valueArray.length + 1) as 4 | 5 | 7 | 9 | 11}`] : COLOR_SCALES.Linear[`RedColor${(valueArray.length + 1) as 4 | 5 | 6 | 7 | 8 | 9 | 10}`];
+  const colorArray = xIndicatorMetaData.IsDivergent ? UNDPColorModule.divergentColors[`colorsx${((valueArray.length + 1) < 10 ? `0${valueArray.length + 1}` : `${valueArray.length + 1}`) as '04' | '05' | '07' | '09' | '11'}`] : UNDPColorModule.sequentialColors[`neutralColorsx${((valueArray.length + 1) < 10 ? `0${valueArray.length + 1}` : `${valueArray.length + 1}`) as '04' | '05' | '06' | '07' | '08' | '09' | '10'}`];
   const colorScale = xIndicatorMetaData.IsCategorical ? scaleOrdinal<number, string>().domain(valueArray).range(colorArray) : scaleThreshold<number, string>().domain(valueArray).range(colorArray);
 
   const sizeMax = sizeIndicatorMetaData ? maxBy(data, (d) => d.data[d.data.findIndex((el) => el.indicator === sizeIndicatorMetaData.DataKey)]?.value) : undefined;
@@ -78,7 +79,7 @@ export const UnivariateMap = (props: Props) => {
               const valIndicatorLabelExtraIndex = LABEL_EXTRA.findIndex((el) => el.forLabel === xIndicatorMetaData.DataKey) === -1 || indicatorIndex === -1 ? -1 : d.data.findIndex((el) => LABEL_EXTRA[LABEL_EXTRA.findIndex((el1) => el1.forLabel === xIndicatorMetaData.DataKey)].labelExtra === el.indicator);
               const valLabelExtra = valIndicatorLabelExtraIndex === -1 ? undefined : d.data[valIndicatorLabelExtraIndex].value;
 
-              const color = val !== undefined && val !== null ? colorScale(xIndicatorMetaData.IsCategorical ? Math.floor(val) : val) : COLOR_SCALES.Null;
+              const color = val !== undefined && val !== null ? colorScale(xIndicatorMetaData.IsCategorical ? Math.floor(val) : val) : UNDPColorModule.graphNoData;
 
               const regionOpacity = selectedRegions.length === 0 || selectedRegions.indexOf(d['Group 2']) !== -1;
               const incomeGroupOpacity = selectedIncomeGroups.length === 0 || selectedIncomeGroups.indexOf(d['Income group']) !== -1;
@@ -211,7 +212,7 @@ export const UnivariateMap = (props: Props) => {
                           d={masterPath}
                           stroke='#AAA'
                           strokeWidth={0.25}
-                          fill={COLOR_SCALES.Null}
+                          fill={UNDPColorModule.graphNoData}
                         />
                       );
                     }) : d.geometry.coordinates.map((el:any, j: number) => {
@@ -227,7 +228,7 @@ export const UnivariateMap = (props: Props) => {
                           d={path}
                           stroke='#AAA'
                           strokeWidth={0.25}
-                          fill={COLOR_SCALES.Null}
+                          fill={UNDPColorModule.graphNoData}
                         />
                       );
                     })
@@ -262,7 +263,7 @@ export const UnivariateMap = (props: Props) => {
                           opacity={1}
                           strokeWidth={1}
                           fillOpacity={0}
-                          fill={COLOR_SCALES.Null}
+                          fill={UNDPColorModule.graphNoData}
                         />
                       );
                     }) : d.geometry.coordinates.map((el:any, j: number) => {
@@ -304,7 +305,7 @@ export const UnivariateMap = (props: Props) => {
                     const valIndicatorLabelExtraIndex = LABEL_EXTRA.findIndex((el) => el.forLabel === xIndicatorMetaData.DataKey) === -1 || indicatorIndex === -1 ? -1 : d.data.findIndex((el) => LABEL_EXTRA[LABEL_EXTRA.findIndex((el1) => el1.forLabel === xIndicatorMetaData.DataKey)].labelExtra === el.indicator);
                     const valLabelExtra = valIndicatorLabelExtraIndex === -1 ? undefined : d.data[valIndicatorLabelExtraIndex].value;
 
-                    const color = val !== undefined && val !== null ? colorScale(xIndicatorMetaData.IsCategorical ? Math.floor(val) : val) : COLOR_SCALES.Null;
+                    const color = val !== undefined && val !== null ? colorScale(xIndicatorMetaData.IsCategorical ? Math.floor(val) : val) : UNDPColorModule.graphNoData;
 
                     const regionOpacity = selectedRegions.length === 0 || selectedRegions.indexOf(d['Group 2']) !== -1;
                     const incomeGroupOpacity = selectedIncomeGroups.length === 0 || selectedIncomeGroups.indexOf(d['Income group']) !== -1;
